@@ -43,6 +43,7 @@ export const en = {
     recoveryIntro: 'Save these codes somewhere safe. Each can be used once if you lose access to your authenticator. They are shown only now.',
     recoveryRegenerate: 'Regenerate recovery codes',
     recoveryRegenerated: 'New recovery codes generated. The previous set is no longer valid.',
+    recoveryCopy: 'Copy codes',
     recoveryCopied: 'Recovery codes copied',
     disableTitle: 'Disable two-factor authentication',
     disableIntro: 'Enter your account password to confirm.',
@@ -50,6 +51,7 @@ export const en = {
     disable: 'Disable two-factor',
     disabled: 'Two-factor authentication disabled.',
     enabledNotice: 'Two-factor authentication enabled.',
+    error: 'Something went wrong with two-factor authentication.',
   },
   account: {
     title: 'Change password',

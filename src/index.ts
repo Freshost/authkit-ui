@@ -30,6 +30,14 @@ export {
   useChangePassword,
 } from './hooks/useAuth';
 
+export {
+  useEnableTwoFactor,
+  useConfirmTwoFactor,
+  useDisableTwoFactor,
+  useRecoveryCodes,
+  useRegenerateRecoveryCodes,
+} from './hooks/useTwoFactor';
+
 // Components
 export { AuthGuard, type AuthGuardProps } from './components/AuthGuard';
 export { LoginPage, type LoginPageProps } from './components/LoginPage';
@@ -46,6 +54,15 @@ export {
   TwoFactorChallenge,
   type TwoFactorChallengeProps,
 } from './components/twofactor/TwoFactorChallenge';
+export {
+  TwoFactorSetup,
+  type TwoFactorSetupProps,
+} from './components/twofactor/TwoFactorSetup';
+export {
+  DisableTwoFactor,
+  type DisableTwoFactorProps,
+} from './components/twofactor/DisableTwoFactor';
+export { RecoveryCodes, type RecoveryCodesProps } from './components/twofactor/RecoveryCodes';
 
 // Utilities
 export { messageFrom, codeFrom } from './utils';
