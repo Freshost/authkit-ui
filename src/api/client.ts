@@ -3,16 +3,19 @@ import axios, { type AxiosInstance, type AxiosRequestConfig, isAxiosError } from
 import type {
   ChangePasswordRequest,
   CreateUserRequest,
+  LoginHistoryEntry,
   LoginRequest,
   LoginResult,
   MessageResponse,
   MetaResponse,
   RecoveryCodesResponse,
+  SessionResponse,
   SetPasswordRequest,
   TwoFactorChallengeRequest,
   TwoFactorConfirmRequest,
   TwoFactorDisableRequest,
   TwoFactorEnrollmentResponse,
+  UpdateProfileRequest,
   UpdateUserRequest,
   UserResponse,
 } from './types';
@@ -56,7 +59,14 @@ export interface AuthkitClient {
   twoFactorChallenge(body: TwoFactorChallengeRequest): Promise<UserResponse>;
   logout(): Promise<MessageResponse>;
   getMe(): Promise<UserResponse>;
+  updateProfile(body: UpdateProfileRequest): Promise<UserResponse>;
   changePassword(body: ChangePasswordRequest): Promise<MessageResponse>;
+  /** Recent successful sign-ins for the current user. */
+  getLoginHistory(): Promise<LoginHistoryEntry[]>;
+  // --- active sessions ---
+  listSessions(): Promise<SessionResponse[]>;
+  terminateSession(id: string): Promise<MessageResponse>;
+  terminateOtherSessions(): Promise<MessageResponse>;
   // --- two-factor management ---
   enableTwoFactor(): Promise<TwoFactorEnrollmentResponse>;
   confirmTwoFactor(body: TwoFactorConfirmRequest): Promise<RecoveryCodesResponse>;
@@ -119,8 +129,17 @@ export function createAuthkitClient(opts: CreateAuthkitClientOptions): AuthkitCl
       request<UserResponse>({ method: 'POST', url: '/auth/two-factor-challenge', data: body }),
     logout: () => request<MessageResponse>({ method: 'POST', url: '/auth/logout' }),
     getMe: () => request<UserResponse>({ method: 'GET', url: '/auth/me' }),
+    updateProfile: (body) =>
+      request<UserResponse>({ method: 'PUT', url: '/auth/me', data: body }),
     changePassword: (body) =>
       request<MessageResponse>({ method: 'PUT', url: '/auth/password', data: body }),
+
+    getLoginHistory: () => request<LoginHistoryEntry[]>({ method: 'GET', url: '/auth/logins' }),
+    listSessions: () => request<SessionResponse[]>({ method: 'GET', url: '/auth/sessions' }),
+    terminateSession: (id) =>
+      request<MessageResponse>({ method: 'DELETE', url: `/auth/sessions/${id}` }),
+    terminateOtherSessions: () =>
+      request<MessageResponse>({ method: 'DELETE', url: '/auth/sessions' }),
 
     enableTwoFactor: () =>
       request<TwoFactorEnrollmentResponse>({ method: 'POST', url: '/auth/two-factor' }),

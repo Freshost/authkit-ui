@@ -9,7 +9,10 @@ import { SecurityPage } from './pages/SecurityPage';
 export function App() {
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
+      <Route
+        path="/login"
+        element={<LoginPage initialEmail="admin@demo.test" initialPassword="password123" />}
+      />
       <Route
         element={
           <AuthGuard>

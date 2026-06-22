@@ -33,6 +33,7 @@ import {
 } from '@freshost/ui';
 import {
   BarsIcon,
+  CogIcon,
   DesktopIcon,
   HomeIcon,
   KeyIcon,
@@ -44,7 +45,7 @@ import {
   UsersIcon,
   type SVGIconProps,
 } from '@freshost/ui/icons';
-import { ChangePasswordModal, useLogout, useMe } from '@freshost/authkit-ui';
+import { useLogout, useMe } from '@freshost/authkit-ui';
 
 import { getStoredTheme, setStoredTheme, type ThemeMode } from '../theme';
 
@@ -76,7 +77,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const me = useMe();
-  const [pwOpen, setPwOpen] = useState(false);
 
   const masthead = (
     <Masthead>
@@ -105,7 +105,6 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <UserMenu
                   label={me.data?.name || me.data?.email || ''}
                   email={me.data?.email ?? ''}
-                  onChangePassword={() => setPwOpen(true)}
                 />
               </ToolbarItem>
             </ToolbarGroup>
@@ -146,14 +145,11 @@ export function AppShell({ children }: { children: ReactNode }) {
   );
 
   return (
-    <>
-      <Page masthead={masthead} sidebar={sidebar} isManagedSidebar isContentFilled>
-        <PageSection isFilled hasOverflowScroll aria-label={t('nav.primary')}>
-          {children}
-        </PageSection>
-      </Page>
-      <ChangePasswordModal isOpen={pwOpen} onClose={() => setPwOpen(false)} />
-    </>
+    <Page masthead={masthead} sidebar={sidebar} isManagedSidebar isContentFilled>
+      <PageSection isFilled hasOverflowScroll aria-label={t('nav.primary')}>
+        {children}
+      </PageSection>
+    </Page>
   );
 }
 
@@ -199,15 +195,7 @@ function ThemeMenu() {
   );
 }
 
-function UserMenu({
-  label,
-  email,
-  onChangePassword,
-}: {
-  label: string;
-  email: string;
-  onChangePassword: () => void;
-}) {
+function UserMenu({ label, email }: { label: string; email: string }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const logout = useLogout();
@@ -232,8 +220,8 @@ function UserMenu({
     >
       <DropdownGroup label={email}>
         <DropdownList>
-          <DropdownItem icon={<KeyIcon />} onClick={onChangePassword}>
-            {t('nav.changePassword')}
+          <DropdownItem icon={<CogIcon />} onClick={() => navigate('/account')}>
+            {t('nav.accountSettings')}
           </DropdownItem>
           <DropdownItem
             icon={<SignOutAltIcon />}

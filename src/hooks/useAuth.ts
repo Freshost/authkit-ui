@@ -14,6 +14,7 @@ import type {
   LoginResult,
   MessageResponse,
   TwoFactorChallengeRequest,
+  UpdateProfileRequest,
   UserResponse,
 } from '../api/types';
 import { isTwoFactorRequired } from '../api/types';
@@ -27,6 +28,8 @@ export const authkitKeys = {
   users: ['authkit', 'users'] as const,
   twoFactor: ['authkit', 'two-factor'] as const,
   config: ['authkit', 'config'] as const,
+  sessions: ['authkit', 'sessions'] as const,
+  logins: ['authkit', 'logins'] as const,
 };
 
 type MeQueryOptions = Omit<
@@ -93,6 +96,24 @@ export function useLogout(): UseMutationResult<MessageResponse, unknown, void> {
     onSuccess: () => {
       queryClient.clear();
     },
+  });
+}
+
+/**
+ * Updates the current user's own name and email. On success the returned user
+ * seeds the `me` cache so the UI reflects the change immediately. Toasts result.
+ */
+export function useUpdateProfile(): UseMutationResult<UserResponse, unknown, UpdateProfileRequest> {
+  const { client, notify } = useAuthkit();
+  const { t } = useTranslation(AUTHKIT_NS);
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: UpdateProfileRequest) => client.updateProfile(body),
+    onSuccess: (user) => {
+      queryClient.setQueryData(authkitKeys.me, user);
+      notify.success(t('profile.success'));
+    },
+    onError: (err) => notify.error(messageFrom(err, t('profile.error'))),
   });
 }
 

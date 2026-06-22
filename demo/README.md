@@ -16,9 +16,11 @@ here, with a single React / PatternFly copy (deduped).
 
 ## Run (port 5173)
 
+Driven through the `Makefile` (`make help` lists targets).
+
 ```bash
-pnpm install
-pnpm dev          # http://localhost:5173 — proxies /api → http://127.0.0.1:8099
+make install
+make dev          # http://localhost:5173 — proxies /api → http://127.0.0.1:8099
 ```
 
 Sign in with **admin@demo.test / password123**.

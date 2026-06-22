@@ -17,7 +17,7 @@ void i18n.use(initReactI18next).init({
           account: 'Account',
           security: 'Security',
           users: 'Users',
-          changePassword: 'Change password',
+          accountSettings: 'Account settings',
           logout: 'Sign out',
           theme: 'Theme',
           themeLight: 'Light',
@@ -31,7 +31,7 @@ void i18n.use(initReactI18next).init({
           open: 'Open',
           account: {
             title: 'Account',
-            desc: 'Change your password. Other sessions are signed out on change.',
+            desc: 'Update your name and email, or change your password.',
           },
           security: {
             title: 'Two-factor',

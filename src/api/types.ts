@@ -10,6 +10,8 @@ export interface UserResponse {
   role: string;
   /** Whether the user has confirmed TOTP two-factor. */
   twoFactorEnabled: boolean;
+  /** Whether the account is locked (login + sessions refused). */
+  disabled: boolean;
   /** RFC3339 timestamp. */
   createdAt: string;
 }
@@ -25,6 +27,26 @@ export interface MetaFeatures {
   userManagement: boolean;
   twoFactor: boolean;
   auditLog: boolean;
+  sessions: boolean;
+}
+
+/** One active session (the secret session id is never exposed). */
+export interface SessionResponse {
+  id: string;
+  ip: string;
+  userAgent: string;
+  /** Whether this is the session making the request. */
+  current: boolean;
+  createdAt: string;
+  lastActiveAt: string;
+}
+
+/** One recent successful sign-in. */
+export interface LoginHistoryEntry {
+  /** `auth.login` (password) or `auth.login_remember` (remember cookie). */
+  action: string;
+  ip: string;
+  createdAt: string;
 }
 
 /**
@@ -47,11 +69,19 @@ export interface MessageResponse {
 export interface LoginRequest {
   email: string;
   password: string;
+  /** Issue a persistent "remember me" cookie so the login survives session expiry. */
+  remember?: boolean;
 }
 
 export interface ChangePasswordRequest {
   currentPassword: string;
   newPassword: string;
+}
+
+/** The current user's own profile fields (name + email). */
+export interface UpdateProfileRequest {
+  email: string;
+  name?: string;
 }
 
 export interface CreateUserRequest {
@@ -65,6 +95,8 @@ export interface UpdateUserRequest {
   email: string;
   name?: string;
   role?: string;
+  /** Lock (true) or unlock (false) the account; omit to leave unchanged. */
+  disabled?: boolean;
 }
 
 export interface SetPasswordRequest {

@@ -27,6 +27,7 @@ export {
   useLogin,
   useTwoFactorChallenge,
   useLogout,
+  useUpdateProfile,
   useChangePassword,
 } from './hooks/useAuth';
 
@@ -45,11 +46,20 @@ export {
   useSetUserPassword,
 } from './hooks/useUsers';
 export { useAuthkitConfig } from './hooks/useConfig';
+export {
+  useLoginHistory,
+  useSessions,
+  useTerminateSession,
+  useTerminateOtherSessions,
+} from './hooks/useSessions';
 
 // Components
 export { AuthGuard, type AuthGuardProps } from './components/AuthGuard';
 export { LoginPage, type LoginPageProps } from './components/LoginPage';
 export { AccountPage, type AccountPageProps } from './components/AccountPage';
+export { ProfileForm, type ProfileFormProps } from './components/ProfileForm';
+export { LoginHistoryCard } from './components/LoginHistoryCard';
+export { SessionsCard } from './components/SessionsCard';
 export {
   ChangePasswordForm,
   type ChangePasswordFormProps,

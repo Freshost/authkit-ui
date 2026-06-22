@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import {
   Button,
+  Checkbox,
   Form,
   FormGroup,
   FormSelect,
@@ -47,6 +48,7 @@ export function UserFormModal({ user, onClose }: UserFormModalProps) {
   const [email, setEmail] = useState(user?.email ?? '');
   const [name, setName] = useState(user?.name ?? '');
   const [role, setRole] = useState(defaultRole);
+  const [disabled, setDisabled] = useState(user?.disabled ?? false);
   const [password, setPassword] = useState('');
   const pending = create.isPending || update.isPending;
   const title = isEdit ? t('users.editTitle') : t('users.createTitle');
@@ -54,7 +56,7 @@ export function UserFormModal({ user, onClose }: UserFormModalProps) {
   const submit = (event: FormEvent) => {
     event.preventDefault();
     if (isEdit && user) {
-      update.mutate({ id: user.id, body: { email, name, role } }, { onSuccess: onClose });
+      update.mutate({ id: user.id, body: { email, name, role, disabled } }, { onSuccess: onClose });
     } else {
       create.mutate({ email, name, role, password }, { onSuccess: onClose });
     }
@@ -99,7 +101,17 @@ export function UserFormModal({ user, onClose }: UserFormModalProps) {
               <TextInput id="authkit-user-role" value={role} onChange={(_event, v) => setRole(v)} />
             )}
           </FormGroup>
-          {!isEdit ? (
+          {isEdit ? (
+            <FormGroup fieldId="authkit-user-disabled">
+              <Checkbox
+                id="authkit-user-disabled"
+                label={t('users.disabledLabel')}
+                description={t('users.disabledHint')}
+                isChecked={disabled}
+                onChange={(_event, checked) => setDisabled(checked)}
+              />
+            </FormGroup>
+          ) : (
             <FormGroup label={t('users.passwordLabel')} isRequired fieldId="authkit-user-password">
               <TextInput
                 id="authkit-user-password"
@@ -111,7 +123,7 @@ export function UserFormModal({ user, onClose }: UserFormModalProps) {
                 autoComplete="new-password"
               />
             </FormGroup>
-          ) : null}
+          )}
         </Form>
       </ModalBody>
       <ModalFooter>

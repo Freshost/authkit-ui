@@ -18,6 +18,13 @@ export interface LoginPageProps {
    * to navigating to the provider's `home` route.
    */
   onSuccess?: (user: UserResponse) => void;
+  /** Prefill the email field (e.g. an SSO hint or a remembered address). */
+  initialEmail?: string;
+  /**
+   * Prefill the password field. Intended for local demos / dev only — never
+   * ship a real app with a hardcoded password.
+   */
+  initialPassword?: string;
   /** Footer list items (links) passed through to the PatternFly login page. */
   footer?: ReactNode;
   /** "Sign up" band content. */
@@ -32,14 +39,22 @@ export interface LoginPageProps {
  * `{ two_factor: true }` swaps the form for the {@link TwoFactorChallenge}.
  * Branding (logo, titles, background) comes from <AuthkitProvider>.
  */
-export function LoginPage({ onSuccess, footer, signUp, forgotCredentials }: LoginPageProps) {
+export function LoginPage({
+  onSuccess,
+  footer,
+  signUp,
+  forgotCredentials,
+  initialEmail,
+  initialPassword,
+}: LoginPageProps) {
   const { t } = useTranslation(AUTHKIT_NS);
   const { branding, routes } = useAuthkit();
   const navigate = useNavigate();
   const login = useLogin();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState(initialEmail ?? '');
+  const [password, setPassword] = useState(initialPassword ?? '');
+  const [remember, setRemember] = useState(false);
   const [pending2fa, setPending2fa] = useState(false);
 
   const handleSuccess = (user: UserResponse) => {
@@ -53,7 +68,7 @@ export function LoginPage({ onSuccess, footer, signUp, forgotCredentials }: Logi
   const submitPassword = (event: MouseEvent<HTMLButtonElement> | FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     login.mutate(
-      { email, password },
+      { email, password, remember },
       {
         onSuccess: (result) => {
           if (isTwoFactorRequired(result)) {
@@ -66,10 +81,13 @@ export function LoginPage({ onSuccess, footer, signUp, forgotCredentials }: Logi
     );
   };
 
+  const errorCode = login.isError ? codeFrom(login.error) : '';
   const errorText = login.isError
-    ? codeFrom(login.error) === 'rate_limited'
+    ? errorCode === 'rate_limited'
       ? t('login.rateLimited')
-      : t('login.error')
+      : errorCode === 'account_disabled'
+        ? t('login.accountDisabled')
+        : t('login.error')
     : '';
 
   return (
@@ -97,6 +115,9 @@ export function LoginPage({ onSuccess, footer, signUp, forgotCredentials }: Logi
           passwordValue={password}
           onChangePassword={(_event, v) => setPassword(v)}
           onLoginButtonClick={submitPassword}
+          rememberMeLabel={t('login.rememberMe')}
+          isRememberMeChecked={remember}
+          onChangeRememberMe={(_event, checked) => setRemember(checked)}
           showHelperText={login.isError}
           helperText={errorText}
           helperTextIcon={<ExclamationCircleIcon />}

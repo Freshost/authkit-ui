@@ -9,6 +9,7 @@ import {
   Content,
   EmptyState,
   EmptyStateBody,
+  Label,
   Spinner,
   Stack,
   StackItem,
@@ -100,7 +101,17 @@ export function UsersPage() {
             <Tbody>
               {users.map((user) => (
                 <Tr key={user.id}>
-                  <Td dataLabel={t('users.emailLabel')}>{user.email}</Td>
+                  <Td dataLabel={t('users.emailLabel')}>
+                    {user.email}
+                    {user.disabled ? (
+                      <>
+                        {' '}
+                        <Label color="red" isCompact>
+                          {t('users.disabledBadge')}
+                        </Label>
+                      </>
+                    ) : null}
+                  </Td>
                   <Td dataLabel={t('users.nameLabel')}>{user.name}</Td>
                   <Td dataLabel={t('users.roleLabel')}>{user.role}</Td>
                   <Td dataLabel={t('users.createdAtLabel')}>{formatDate(user.createdAt)}</Td>
