@@ -8,6 +8,8 @@ export interface UserResponse {
   email: string;
   name: string;
   role: string;
+  /** Whether the user has confirmed TOTP two-factor. */
+  twoFactorEnabled: boolean;
   /** RFC3339 timestamp. */
   createdAt: string;
 }
@@ -16,6 +18,25 @@ export interface UserResponse {
 export interface ErrorResponse {
   error: string;
   message: string;
+}
+
+/** Feature toggles mirrored from the backend `authkit.features` config. */
+export interface MetaFeatures {
+  userManagement: boolean;
+  twoFactor: boolean;
+  auditLog: boolean;
+}
+
+/**
+ * Non-sensitive frontend config served at `{prefix}/meta` — the single source of
+ * truth for role options, password rules and feature flags. The UI fetches this
+ * instead of hardcoding/duplicating the backend config.
+ */
+export interface MetaResponse {
+  /** Assignable role values (empty = any role accepted). */
+  roles: string[];
+  minPasswordLength: number;
+  features: MetaFeatures;
 }
 
 /** Simple `{ message }` envelope. */

@@ -44,6 +44,7 @@ export {
   useDeleteUser,
   useSetUserPassword,
 } from './hooks/useUsers';
+export { useAuthkitConfig } from './hooks/useConfig';
 
 // Components
 export { AuthGuard, type AuthGuardProps } from './components/AuthGuard';
@@ -65,6 +66,7 @@ export {
   TwoFactorSetup,
   type TwoFactorSetupProps,
 } from './components/twofactor/TwoFactorSetup';
+export { TwoFactorSettings } from './components/twofactor/TwoFactorSettings';
 export {
   DisableTwoFactor,
   type DisableTwoFactorProps,

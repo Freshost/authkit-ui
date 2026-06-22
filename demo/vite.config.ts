@@ -21,7 +21,7 @@ export default defineConfig({
     fs: { allow: [resolve(__dirname, '..')] },
     // Same-origin to the browser; cookies flow through to the Goravel backend.
     proxy: {
-      '/api': { target: 'http://127.0.0.1:8090', changeOrigin: false },
+      '/api': { target: 'http://127.0.0.1:8099', changeOrigin: false },
     },
   },
 });

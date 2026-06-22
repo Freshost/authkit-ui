@@ -25,6 +25,7 @@ import {
 import { PlusIcon } from '@freshost/ui/icons';
 
 import type { UserResponse } from '../../api/types';
+import { useAuthkitConfig } from '../../hooks/useConfig';
 import { useUsers } from '../../hooks/useUsers';
 import { AUTHKIT_NS } from '../../i18n';
 import { DeleteUserModal } from './DeleteUserModal';
@@ -53,6 +54,8 @@ function formatDate(iso: string): string {
 export function UsersPage() {
   const { t } = useTranslation(AUTHKIT_NS);
   const { data: users, isLoading, isError } = useUsers();
+  // Warm the config cache so the role select is ready when a modal opens.
+  useAuthkitConfig();
   const [modal, setModal] = useState<ModalState>(null);
   const close = () => setModal(null);
 

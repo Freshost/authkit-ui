@@ -5,6 +5,8 @@ import {
   Button,
   Form,
   FormGroup,
+  FormSelect,
+  FormSelectOption,
   Modal,
   ModalBody,
   ModalFooter,
@@ -13,6 +15,7 @@ import {
 } from '@freshost/ui';
 
 import type { UserResponse } from '../../api/types';
+import { useAuthkitConfig } from '../../hooks/useConfig';
 import { useCreateUser, useUpdateUser } from '../../hooks/useUsers';
 import { AUTHKIT_NS } from '../../i18n';
 import { useAuthkit } from '../../provider';
@@ -33,9 +36,17 @@ export function UserFormModal({ user, onClose }: UserFormModalProps) {
   const create = useCreateUser();
   const update = useUpdateUser();
 
+  // Roles come from the backend config (the single source of truth). When a role
+  // set is configured we render a select; otherwise free text. Include the
+  // user's current role even if it's outside the set so editing never drops it.
+  const roles = useAuthkitConfig().data?.roles ?? [];
+  const roleOptions =
+    roles.length > 0 && user?.role && !roles.includes(user.role) ? [user.role, ...roles] : roles;
+  const defaultRole = user?.role ?? roleOptions[0] ?? 'admin';
+
   const [email, setEmail] = useState(user?.email ?? '');
   const [name, setName] = useState(user?.name ?? '');
-  const [role, setRole] = useState(user?.role ?? 'admin');
+  const [role, setRole] = useState(defaultRole);
   const [password, setPassword] = useState('');
   const pending = create.isPending || update.isPending;
   const title = isEdit ? t('users.editTitle') : t('users.createTitle');
@@ -73,7 +84,20 @@ export function UserFormModal({ user, onClose }: UserFormModalProps) {
             />
           </FormGroup>
           <FormGroup label={t('users.roleLabel')} fieldId="authkit-user-role">
-            <TextInput id="authkit-user-role" value={role} onChange={(_event, v) => setRole(v)} />
+            {roleOptions.length > 0 ? (
+              <FormSelect
+                id="authkit-user-role"
+                value={role}
+                onChange={(_event, v) => setRole(v)}
+                aria-label={t('users.roleLabel')}
+              >
+                {roleOptions.map((r) => (
+                  <FormSelectOption key={r} value={r} label={r} />
+                ))}
+              </FormSelect>
+            ) : (
+              <TextInput id="authkit-user-role" value={role} onChange={(_event, v) => setRole(v)} />
+            )}
           </FormGroup>
           {!isEdit ? (
             <FormGroup label={t('users.passwordLabel')} isRequired fieldId="authkit-user-password">

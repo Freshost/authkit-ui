@@ -11,14 +11,14 @@ here, with a single React / PatternFly copy (deduped).
 ## Prerequisites
 
 - Node 20+, pnpm
-- The **backend demo running on `:8090`** — it lives in the `goravel-authkit`
+- The **backend demo running on `:8099`** — it lives in the `goravel-authkit`
   repo under `demo/`. Start it first (see that repo's `demo/README.md`), then:
 
 ## Run (port 5173)
 
 ```bash
 pnpm install
-pnpm dev          # http://localhost:5173 — proxies /api → http://127.0.0.1:8090
+pnpm dev          # http://localhost:5173 — proxies /api → http://127.0.0.1:8099
 ```
 
 Sign in with **admin@demo.test / password123**.

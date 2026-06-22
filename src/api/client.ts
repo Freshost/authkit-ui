@@ -6,6 +6,7 @@ import type {
   LoginRequest,
   LoginResult,
   MessageResponse,
+  MetaResponse,
   RecoveryCodesResponse,
   SetPasswordRequest,
   TwoFactorChallengeRequest,
@@ -48,6 +49,8 @@ function toAuthkitError(err: unknown): AuthkitError {
 
 /** The typed surface over the stable goravel-authkit HTTP contract. */
 export interface AuthkitClient {
+  /** Public frontend config (role options, feature flags, password rules). */
+  getMeta(): Promise<MetaResponse>;
   // --- auth ---
   login(body: LoginRequest): Promise<LoginResult>;
   twoFactorChallenge(body: TwoFactorChallengeRequest): Promise<UserResponse>;
@@ -109,6 +112,8 @@ export function createAuthkitClient(opts: CreateAuthkitClientOptions): AuthkitCl
   return {
     axios: instance,
 
+    getMeta: () => request<MetaResponse>({ method: 'GET', url: '/auth/meta' }),
+
     login: (body) => request<LoginResult>({ method: 'POST', url: '/auth/login', data: body }),
     twoFactorChallenge: (body) =>
       request<UserResponse>({ method: 'POST', url: '/auth/two-factor-challenge', data: body }),
@@ -128,13 +133,13 @@ export function createAuthkitClient(opts: CreateAuthkitClientOptions): AuthkitCl
     regenerateRecoveryCodes: () =>
       request<RecoveryCodesResponse>({ method: 'POST', url: '/auth/two-factor/recovery-codes' }),
 
-    listUsers: () => request<UserResponse[]>({ method: 'GET', url: '/users' }),
-    createUser: (body) => request<UserResponse>({ method: 'POST', url: '/users', data: body }),
-    getUser: (id) => request<UserResponse>({ method: 'GET', url: `/users/${id}` }),
+    listUsers: () => request<UserResponse[]>({ method: 'GET', url: '/auth/users' }),
+    createUser: (body) => request<UserResponse>({ method: 'POST', url: '/auth/users', data: body }),
+    getUser: (id) => request<UserResponse>({ method: 'GET', url: `/auth/users/${id}` }),
     updateUser: (id, body) =>
-      request<UserResponse>({ method: 'PUT', url: `/users/${id}`, data: body }),
-    deleteUser: (id) => request<MessageResponse>({ method: 'DELETE', url: `/users/${id}` }),
+      request<UserResponse>({ method: 'PUT', url: `/auth/users/${id}`, data: body }),
+    deleteUser: (id) => request<MessageResponse>({ method: 'DELETE', url: `/auth/users/${id}` }),
     setUserPassword: (id, body) =>
-      request<UserResponse>({ method: 'POST', url: `/users/${id}/password`, data: body }),
+      request<UserResponse>({ method: 'POST', url: `/auth/users/${id}/password`, data: body }),
   };
 }

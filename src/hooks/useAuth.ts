@@ -26,6 +26,7 @@ export const authkitKeys = {
   me: ['authkit', 'me'] as const,
   users: ['authkit', 'users'] as const,
   twoFactor: ['authkit', 'two-factor'] as const,
+  config: ['authkit', 'config'] as const,
 };
 
 type MeQueryOptions = Omit<

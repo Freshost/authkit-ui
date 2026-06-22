@@ -23,16 +23,18 @@ import { RecoveryCodes } from './RecoveryCodes';
 export interface TwoFactorSetupProps {
   /** Called after enrollment is confirmed; receives the new recovery codes. */
   onEnabled?: (recoveryCodes: string[]) => void;
-  /** When provided, renders Cancel/Close buttons calling this. */
+  /** Called when the user dismisses the recovery codes (enrollment fully done). */
+  onFinished?: () => void;
+  /** When provided, renders a Cancel button on the initial step (e.g. in a modal). */
   onCancel?: () => void;
 }
 
 /**
  * Self-contained enrollment flow: start → scan QR / enter secret → confirm code
- * → show one-time recovery codes. Built on {@link useEnableTwoFactor} and
- * {@link useConfirmTwoFactor}.
+ * → show one-time recovery codes. Every step is dismissable: the QR step has a
+ * "Start over" action and the recovery-codes step a "Done" action.
  */
-export function TwoFactorSetup({ onEnabled, onCancel }: TwoFactorSetupProps) {
+export function TwoFactorSetup({ onEnabled, onFinished, onCancel }: TwoFactorSetupProps) {
   const { t } = useTranslation(AUTHKIT_NS);
   const enable = useEnableTwoFactor();
   const confirm = useConfirmTwoFactor();
@@ -40,6 +42,12 @@ export function TwoFactorSetup({ onEnabled, onCancel }: TwoFactorSetupProps) {
   const [enrollment, setEnrollment] = useState<TwoFactorEnrollmentResponse | null>(null);
   const [recoveryCodes, setRecoveryCodes] = useState<string[] | null>(null);
   const [code, setCode] = useState('');
+
+  const reset = () => {
+    setEnrollment(null);
+    setRecoveryCodes(null);
+    setCode('');
+  };
 
   const start = () => enable.mutate(undefined, { onSuccess: setEnrollment });
 
@@ -61,7 +69,10 @@ export function TwoFactorSetup({ onEnabled, onCancel }: TwoFactorSetupProps) {
       <RecoveryCodes
         codes={recoveryCodes}
         title={t('twoFactor.enabledTitle')}
-        onDone={onCancel}
+        onDone={() => {
+          reset();
+          onFinished?.();
+        }}
       />
     );
   }
@@ -116,11 +127,10 @@ export function TwoFactorSetup({ onEnabled, onCancel }: TwoFactorSetupProps) {
         >
           {confirm.isPending ? t('twoFactor.confirming') : t('twoFactor.confirm')}
         </Button>
-        {onCancel ? (
-          <Button variant="link" onClick={onCancel} isDisabled={confirm.isPending}>
-            {t('common.cancel')}
-          </Button>
-        ) : null}
+        {/* Always dismissable: back out of the QR step. */}
+        <Button variant="link" onClick={reset} isDisabled={confirm.isPending}>
+          {t('common.cancel')}
+        </Button>
       </ActionGroup>
     </Form>
   );
