@@ -1,0 +1,140 @@
+import axios, { type AxiosInstance, type AxiosRequestConfig, isAxiosError } from 'axios';
+
+import type {
+  ChangePasswordRequest,
+  CreateUserRequest,
+  LoginRequest,
+  LoginResult,
+  MessageResponse,
+  RecoveryCodesResponse,
+  SetPasswordRequest,
+  TwoFactorChallengeRequest,
+  TwoFactorConfirmRequest,
+  TwoFactorDisableRequest,
+  TwoFactorEnrollmentResponse,
+  UpdateUserRequest,
+  UserResponse,
+} from './types';
+
+/**
+ * Error thrown by every client method on a non-2xx response. Carries the HTTP
+ * status and the backend's `{ error, message }` envelope so callers (and toast
+ * adapters) can branch on `code` and show `message`.
+ */
+export class AuthkitError extends Error {
+  readonly status: number;
+  readonly code: string;
+
+  constructor(status: number, code: string, message: string) {
+    super(message);
+    this.name = 'AuthkitError';
+    this.status = status;
+    this.code = code;
+  }
+}
+
+function toAuthkitError(err: unknown): AuthkitError {
+  if (isAxiosError(err)) {
+    const status = err.response?.status ?? 0;
+    const data = err.response?.data as { error?: string; message?: string } | undefined;
+    return new AuthkitError(
+      status,
+      data?.error ?? 'network_error',
+      data?.message ?? err.message ?? 'Request failed',
+    );
+  }
+  return new AuthkitError(0, 'unknown_error', err instanceof Error ? err.message : 'Request failed');
+}
+
+/** The typed surface over the stable goravel-authkit HTTP contract. */
+export interface AuthkitClient {
+  // --- auth ---
+  login(body: LoginRequest): Promise<LoginResult>;
+  twoFactorChallenge(body: TwoFactorChallengeRequest): Promise<UserResponse>;
+  logout(): Promise<MessageResponse>;
+  getMe(): Promise<UserResponse>;
+  changePassword(body: ChangePasswordRequest): Promise<MessageResponse>;
+  // --- two-factor management ---
+  enableTwoFactor(): Promise<TwoFactorEnrollmentResponse>;
+  confirmTwoFactor(body: TwoFactorConfirmRequest): Promise<RecoveryCodesResponse>;
+  disableTwoFactor(body: TwoFactorDisableRequest): Promise<MessageResponse>;
+  getRecoveryCodes(): Promise<RecoveryCodesResponse>;
+  regenerateRecoveryCodes(): Promise<RecoveryCodesResponse>;
+  // --- user management ---
+  listUsers(): Promise<UserResponse[]>;
+  createUser(body: CreateUserRequest): Promise<UserResponse>;
+  getUser(id: string): Promise<UserResponse>;
+  updateUser(id: string, body: UpdateUserRequest): Promise<UserResponse>;
+  deleteUser(id: string): Promise<MessageResponse>;
+  setUserPassword(id: string, body: SetPasswordRequest): Promise<UserResponse>;
+  /** The underlying axios instance, for apps that want to share interceptors. */
+  readonly axios: AxiosInstance;
+}
+
+export interface CreateAuthkitClientOptions {
+  /**
+   * API base URL, including the route prefix the backend is mounted under
+   * (default `/api/v1`). The package paths are appended to this.
+   */
+  baseURL: string;
+  /**
+   * Optional pre-configured axios instance. When omitted, a dedicated instance
+   * is created with `withCredentials: true` (session-cookie auth). Pass your own
+   * to share interceptors/headers — `baseURL` and `withCredentials` are applied.
+   */
+  axiosInstance?: AxiosInstance;
+}
+
+/**
+ * Builds a typed client for the goravel-authkit endpoints. Uses session-cookie
+ * auth (`withCredentials: true`) — no bearer tokens, nothing in localStorage.
+ */
+export function createAuthkitClient(opts: CreateAuthkitClientOptions): AuthkitClient {
+  const instance =
+    opts.axiosInstance ?? axios.create({ baseURL: opts.baseURL, withCredentials: true });
+  if (opts.axiosInstance) {
+    instance.defaults.baseURL = opts.baseURL;
+    instance.defaults.withCredentials = true;
+  }
+
+  async function request<T>(config: AxiosRequestConfig): Promise<T> {
+    try {
+      const res = await instance.request<T>(config);
+      return res.data;
+    } catch (err) {
+      throw toAuthkitError(err);
+    }
+  }
+
+  return {
+    axios: instance,
+
+    login: (body) => request<LoginResult>({ method: 'POST', url: '/auth/login', data: body }),
+    twoFactorChallenge: (body) =>
+      request<UserResponse>({ method: 'POST', url: '/auth/two-factor-challenge', data: body }),
+    logout: () => request<MessageResponse>({ method: 'POST', url: '/auth/logout' }),
+    getMe: () => request<UserResponse>({ method: 'GET', url: '/auth/me' }),
+    changePassword: (body) =>
+      request<MessageResponse>({ method: 'PUT', url: '/auth/password', data: body }),
+
+    enableTwoFactor: () =>
+      request<TwoFactorEnrollmentResponse>({ method: 'POST', url: '/auth/two-factor' }),
+    confirmTwoFactor: (body) =>
+      request<RecoveryCodesResponse>({ method: 'POST', url: '/auth/two-factor/confirm', data: body }),
+    disableTwoFactor: (body) =>
+      request<MessageResponse>({ method: 'DELETE', url: '/auth/two-factor', data: body }),
+    getRecoveryCodes: () =>
+      request<RecoveryCodesResponse>({ method: 'GET', url: '/auth/two-factor/recovery-codes' }),
+    regenerateRecoveryCodes: () =>
+      request<RecoveryCodesResponse>({ method: 'POST', url: '/auth/two-factor/recovery-codes' }),
+
+    listUsers: () => request<UserResponse[]>({ method: 'GET', url: '/users' }),
+    createUser: (body) => request<UserResponse>({ method: 'POST', url: '/users', data: body }),
+    getUser: (id) => request<UserResponse>({ method: 'GET', url: `/users/${id}` }),
+    updateUser: (id, body) =>
+      request<UserResponse>({ method: 'PUT', url: `/users/${id}`, data: body }),
+    deleteUser: (id) => request<MessageResponse>({ method: 'DELETE', url: `/users/${id}` }),
+    setUserPassword: (id, body) =>
+      request<UserResponse>({ method: 'POST', url: `/users/${id}/password`, data: body }),
+  };
+}

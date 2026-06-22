@@ -1,0 +1,61 @@
+{
+  "name": "@freshost/authkit-ui",
+  "version": "0.1.0",
+  "description": "React companion UI for goravel-authkit — drop-in login, account, 2FA and user-management built on @freshost/ui (PatternFly v6), framework-agnostic via an adapter Provider.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Freshost",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Freshost/authkit-ui.git"
+  },
+  "homepage": "https://github.com/Freshost/authkit-ui#readme",
+  "bugs": {
+    "url": "https://github.com/Freshost/authkit-ui/issues"
+  },
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm build"
+  },
+  "dependencies": {
+    "axios": "^1.7.9",
+    "qrcode.react": "^4.2.0"
+  },
+  "peerDependencies": {
+    "@freshost/ui": ">=0.2",
+    "@tanstack/react-query": ">=5",
+    "i18next": ">=23",
+    "react": ">=18",
+    "react-dom": ">=18",
+    "react-i18next": ">=15",
+    "react-router": ">=7"
+  },
+  "devDependencies": {
+    "@freshost/ui": "^0.2.11",
+    "@tanstack/react-query": "^5.62.0",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "i18next": "^23.16.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-i18next": "^15.1.0",
+    "react-router": "^7.1.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2"
+  }
+}
