@@ -59,6 +59,7 @@ export const en = {
     submit: 'Change password',
     success: 'Password changed. Other sessions have been signed out.',
     error: 'Could not change password.',
+    wrongPassword: 'Your current password is incorrect.',
     mismatch: 'The passwords do not match.',
     tooShort: 'Password must be at least {{min}} characters.',
   },
