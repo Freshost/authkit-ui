@@ -37,6 +37,13 @@ export {
   useRecoveryCodes,
   useRegenerateRecoveryCodes,
 } from './hooks/useTwoFactor';
+export {
+  useUsers,
+  useCreateUser,
+  useUpdateUser,
+  useDeleteUser,
+  useSetUserPassword,
+} from './hooks/useUsers';
 
 // Components
 export { AuthGuard, type AuthGuardProps } from './components/AuthGuard';
@@ -63,6 +70,13 @@ export {
   type DisableTwoFactorProps,
 } from './components/twofactor/DisableTwoFactor';
 export { RecoveryCodes, type RecoveryCodesProps } from './components/twofactor/RecoveryCodes';
+export { UsersPage } from './components/users/UsersPage';
+export { UserFormModal, type UserFormModalProps } from './components/users/UserFormModal';
+export {
+  SetUserPasswordModal,
+  type SetUserPasswordModalProps,
+} from './components/users/SetUserPasswordModal';
+export { DeleteUserModal, type DeleteUserModalProps } from './components/users/DeleteUserModal';
 
 // Utilities
 export { messageFrom, codeFrom } from './utils';
