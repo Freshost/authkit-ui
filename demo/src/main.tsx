@@ -10,6 +10,9 @@ import '@freshost/ui/styles.css';
 import { App } from './App';
 import i18n from './i18n';
 import { Toasts, notifyAdapter } from './notify';
+import { applyTheme, getStoredTheme } from './theme';
+
+applyTheme(getStoredTheme());
 
 const queryClient = new QueryClient();
 

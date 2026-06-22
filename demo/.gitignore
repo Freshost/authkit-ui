@@ -1,2 +1,3 @@
 *.tsbuildinfo
 .vite/
+.playwright-mcp/
