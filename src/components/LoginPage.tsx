@@ -1,9 +1,22 @@
-import { useState, type FormEvent, type MouseEvent, type ReactNode } from 'react';
+import { useState, type FormEvent, type ReactNode } from 'react';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 
-import { LoginForm, LoginPage as PFLoginPage } from '@freshost/ui';
-import { ExclamationCircleIcon } from '@freshost/ui/icons';
+import {
+  ActionGroup,
+  Button,
+  Form,
+  FormGroup,
+  FormHelperText,
+  HelperText,
+  HelperTextItem,
+  InputGroup,
+  InputGroupItem,
+  LoginPage as PFLoginPage,
+  Switch,
+  TextInput,
+} from '@freshost/ui';
+import { ExclamationCircleIcon, EyeIcon, EyeSlashIcon } from '@freshost/ui/icons';
 
 import { isTwoFactorRequired, type UserResponse } from '../api/types';
 import { useLogin } from '../hooks/useAuth';
@@ -11,6 +24,16 @@ import { AUTHKIT_NS } from '../i18n';
 import { useAuthkit } from '../provider';
 import { codeFrom } from '../utils';
 import { TwoFactorChallenge } from './twofactor/TwoFactorChallenge';
+
+/**
+ * True only in a dev build under a Vite-like bundler. The package may be
+ * consumed outside Vite (so `import.meta.env` can be undefined) — in that case
+ * we treat it as NOT dev and never prefill the password. Accessed via `as any`
+ * because the library tsconfig has no `import.meta.env` typings.
+ */
+const IS_DEV = (import.meta as any).env?.DEV === true;
+
+let warnedInsecurePassword = false;
 
 export interface LoginPageProps {
   /**
@@ -34,9 +57,11 @@ export interface LoginPageProps {
 }
 
 /**
- * Drop-in login page built on the PatternFly LoginPage/LoginForm. Handles the
- * two-step 2FA login internally: a password login that returns
- * `{ two_factor: true }` swaps the form for the {@link TwoFactorChallenge}.
+ * Drop-in login page built on the PatternFly LoginPage. The credential form is
+ * composed from PatternFly form primitives (rather than the stock `LoginForm`)
+ * so remember-me is a nicer `Switch` and the password field has a show/hide
+ * toggle. Handles the two-step 2FA login internally: a password login that
+ * returns `{ two_factor: true }` swaps the form for the {@link TwoFactorChallenge}.
  * Branding (logo, titles, background) comes from <AuthkitProvider>.
  */
 export function LoginPage({
@@ -52,9 +77,20 @@ export function LoginPage({
   const navigate = useNavigate();
   const login = useLogin();
 
+  // `initialPassword` is a dev-only convenience: ignore it outside a dev build
+  // so a hardcoded credential can never prefill in production. Warn once in dev.
+  if (IS_DEV && initialPassword && !warnedInsecurePassword) {
+    warnedInsecurePassword = true;
+    // eslint-disable-next-line no-console
+    console.warn(
+      '[authkit-ui] LoginPage `initialPassword` is set. This is for local demos / dev only and must never be used in production.',
+    );
+  }
+
   const [email, setEmail] = useState(initialEmail ?? '');
-  const [password, setPassword] = useState(initialPassword ?? '');
+  const [password, setPassword] = useState(IS_DEV ? initialPassword ?? '' : '');
   const [remember, setRemember] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [pending2fa, setPending2fa] = useState(false);
 
   const handleSuccess = (user: UserResponse) => {
@@ -65,7 +101,7 @@ export function LoginPage({
     }
   };
 
-  const submitPassword = (event: MouseEvent<HTMLButtonElement> | FormEvent<HTMLFormElement>) => {
+  const submitPassword = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     login.mutate(
       { email, password, remember },
@@ -106,24 +142,71 @@ export function LoginPage({
       {pending2fa ? (
         <TwoFactorChallenge onSuccess={handleSuccess} />
       ) : (
-        <LoginForm
-          usernameLabel={t('login.emailLabel')}
-          passwordLabel={t('login.passwordLabel')}
-          loginButtonLabel={login.isPending ? t('login.submitting') : t('login.submit')}
-          usernameValue={email}
-          onChangeUsername={(_event, v) => setEmail(v)}
-          passwordValue={password}
-          onChangePassword={(_event, v) => setPassword(v)}
-          onLoginButtonClick={submitPassword}
-          rememberMeLabel={t('login.rememberMe')}
-          isRememberMeChecked={remember}
-          onChangeRememberMe={(_event, checked) => setRemember(checked)}
-          showHelperText={login.isError}
-          helperText={errorText}
-          helperTextIcon={<ExclamationCircleIcon />}
-          isValidUsername={!login.isError}
-          isValidPassword={!login.isError}
-        />
+        <Form onSubmit={submitPassword}>
+          {login.isError && (
+            <FormHelperText>
+              <HelperText>
+                <HelperTextItem variant="error" icon={<ExclamationCircleIcon />}>
+                  {errorText}
+                </HelperTextItem>
+              </HelperText>
+            </FormHelperText>
+          )}
+
+          <FormGroup label={t('login.emailLabel')} isRequired fieldId="authkit-login-username">
+            <TextInput
+              id="authkit-login-username"
+              name="username"
+              type="email"
+              autoComplete="username"
+              autoFocus
+              isRequired
+              value={email}
+              validated={login.isError ? 'error' : 'default'}
+              onChange={(_event, v) => setEmail(v)}
+            />
+          </FormGroup>
+
+          <FormGroup label={t('login.passwordLabel')} isRequired fieldId="authkit-login-password">
+            <InputGroup>
+              <InputGroupItem isFill>
+                <TextInput
+                  id="authkit-login-password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  isRequired
+                  value={password}
+                  validated={login.isError ? 'error' : 'default'}
+                  onChange={(_event, v) => setPassword(v)}
+                />
+              </InputGroupItem>
+              <InputGroupItem>
+                <Button
+                  variant="control"
+                  aria-label={showPassword ? t('login.hidePassword') : t('login.showPassword')}
+                  onClick={() => setShowPassword((s) => !s)}
+                  icon={showPassword ? <EyeSlashIcon /> : <EyeIcon />}
+                />
+              </InputGroupItem>
+            </InputGroup>
+          </FormGroup>
+
+          <FormGroup fieldId="authkit-login-remember">
+            <Switch
+              id="authkit-login-remember"
+              label={t('login.rememberMe')}
+              isChecked={remember}
+              onChange={(_event, checked) => setRemember(checked)}
+            />
+          </FormGroup>
+
+          <ActionGroup>
+            <Button variant="primary" type="submit" isBlock isDisabled={login.isPending}>
+              {login.isPending ? t('login.submitting') : t('login.submit')}
+            </Button>
+          </ActionGroup>
+        </Form>
       )}
     </PFLoginPage>
   );

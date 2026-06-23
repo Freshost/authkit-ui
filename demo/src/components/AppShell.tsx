@@ -34,20 +34,17 @@ import {
 import {
   BarsIcon,
   CogIcon,
-  DesktopIcon,
   HomeIcon,
   KeyIcon,
-  MoonIcon,
   SecurityIcon,
   SignOutAltIcon,
-  SunIcon,
   UserIcon,
   UsersIcon,
   type SVGIconProps,
 } from '@freshost/ui/icons';
 import { useLogout, useMe } from '@freshost/authkit-ui';
 
-import { getStoredTheme, setStoredTheme, type ThemeMode } from '../theme';
+import { ThemeToggle } from './ThemeToggle';
 
 interface NavItemDef {
   href: string;
@@ -99,7 +96,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <ToolbarContent>
             <ToolbarGroup align={{ default: 'alignEnd' }} gap={{ default: 'gapSm' }}>
               <ToolbarItem>
-                <ThemeMenu />
+                <ThemeToggle />
               </ToolbarItem>
               <ToolbarItem>
                 <UserMenu
@@ -150,48 +147,6 @@ export function AppShell({ children }: { children: ReactNode }) {
         {children}
       </PageSection>
     </Page>
-  );
-}
-
-function ThemeMenu() {
-  const { t } = useTranslation();
-  const [mode, setMode] = useState<ThemeMode>(getStoredTheme);
-  const [isOpen, setIsOpen] = useState(false);
-
-  const choose = (next: ThemeMode) => {
-    setMode(next);
-    setStoredTheme(next);
-    setIsOpen(false);
-  };
-
-  return (
-    <Dropdown
-      isOpen={isOpen}
-      onOpenChange={setIsOpen}
-      popperProps={{ position: 'right' }}
-      toggle={(toggleRef: Ref<MenuToggleElement>) => (
-        <MenuToggle
-          ref={toggleRef}
-          variant="plain"
-          aria-label={t('nav.theme')}
-          isExpanded={isOpen}
-          onClick={() => setIsOpen((o) => !o)}
-          icon={mode === 'dark' ? <MoonIcon aria-hidden /> : <SunIcon aria-hidden />}
-        />
-      )}
-    >
-      <DropdownList>
-        <DropdownItem icon={<SunIcon />} onClick={() => choose('light')}>
-          {t('nav.themeLight')}
-        </DropdownItem>
-        <DropdownItem icon={<MoonIcon />} onClick={() => choose('dark')}>
-          {t('nav.themeDark')}
-        </DropdownItem>
-        <DropdownItem icon={<DesktopIcon />} onClick={() => choose('system')}>
-          {t('nav.themeSystem')}
-        </DropdownItem>
-      </DropdownList>
-    </Dropdown>
   );
 }
 

@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import type {
   MessageResponse,
   RecoveryCodesResponse,
+  RecoveryCodesStatusResponse,
   TwoFactorConfirmRequest,
   TwoFactorDisableRequest,
   TwoFactorEnrollmentResponse,
@@ -58,24 +59,28 @@ export function useDisableTwoFactor(): UseMutationResult<
   });
 }
 
-type RecoveryCodesQueryOptions = Omit<
+type RecoveryCodesStatusQueryOptions = Omit<
   UseQueryOptions<
-    RecoveryCodesResponse,
+    RecoveryCodesStatusResponse,
     unknown,
-    RecoveryCodesResponse,
+    RecoveryCodesStatusResponse,
     typeof authkitKeys.twoFactor
   >,
   'queryKey' | 'queryFn'
 >;
 
-/** Fetches the current (unused) recovery codes. Opt-in via `options.enabled`. */
-export function useRecoveryCodes(
-  options?: RecoveryCodesQueryOptions,
-): UseQueryResult<RecoveryCodesResponse, unknown> {
+/**
+ * Fetches how many unused recovery codes remain. Codes are hashed at rest, so the
+ * plaintext is only available from the confirm/regenerate result, never re-read.
+ * Opt-in via `options.enabled`.
+ */
+export function useRecoveryCodesStatus(
+  options?: RecoveryCodesStatusQueryOptions,
+): UseQueryResult<RecoveryCodesStatusResponse, unknown> {
   const { client } = useAuthkit();
   return useQuery({
     queryKey: authkitKeys.twoFactor,
-    queryFn: () => client.getRecoveryCodes(),
+    queryFn: () => client.getRecoveryCodesStatus(),
     staleTime: 0,
     ...options,
   });
@@ -92,8 +97,11 @@ export function useRegenerateRecoveryCodes(): UseMutationResult<
   const { t } = useTranslation(AUTHKIT_NS);
   return useMutation({
     mutationFn: () => client.regenerateRecoveryCodes(),
-    onSuccess: (res) => {
-      queryClient.setQueryData(authkitKeys.twoFactor, res);
+    onSuccess: () => {
+      // The new plaintext codes are returned to the caller to display once; the
+      // cached twoFactor status (remaining count) is refetched, never seeded with
+      // plaintext (codes are hashed at rest and not re-readable).
+      void queryClient.invalidateQueries({ queryKey: authkitKeys.twoFactor });
       notify.success(t('twoFactor.recoveryRegenerated'));
     },
     onError: (err) => notify.error(messageFrom(err, t('twoFactor.error'))),

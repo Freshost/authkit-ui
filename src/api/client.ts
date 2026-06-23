@@ -9,6 +9,7 @@ import type {
   MessageResponse,
   MetaResponse,
   RecoveryCodesResponse,
+  RecoveryCodesStatusResponse,
   SessionResponse,
   SetPasswordRequest,
   TwoFactorChallengeRequest,
@@ -71,7 +72,7 @@ export interface AuthkitClient {
   enableTwoFactor(): Promise<TwoFactorEnrollmentResponse>;
   confirmTwoFactor(body: TwoFactorConfirmRequest): Promise<RecoveryCodesResponse>;
   disableTwoFactor(body: TwoFactorDisableRequest): Promise<MessageResponse>;
-  getRecoveryCodes(): Promise<RecoveryCodesResponse>;
+  getRecoveryCodesStatus(): Promise<RecoveryCodesStatusResponse>;
   regenerateRecoveryCodes(): Promise<RecoveryCodesResponse>;
   // --- user management ---
   listUsers(): Promise<UserResponse[]>;
@@ -147,8 +148,8 @@ export function createAuthkitClient(opts: CreateAuthkitClientOptions): AuthkitCl
       request<RecoveryCodesResponse>({ method: 'POST', url: '/auth/two-factor/confirm', data: body }),
     disableTwoFactor: (body) =>
       request<MessageResponse>({ method: 'DELETE', url: '/auth/two-factor', data: body }),
-    getRecoveryCodes: () =>
-      request<RecoveryCodesResponse>({ method: 'GET', url: '/auth/two-factor/recovery-codes' }),
+    getRecoveryCodesStatus: () =>
+      request<RecoveryCodesStatusResponse>({ method: 'GET', url: '/auth/two-factor/recovery-codes' }),
     regenerateRecoveryCodes: () =>
       request<RecoveryCodesResponse>({ method: 'POST', url: '/auth/two-factor/recovery-codes' }),
 

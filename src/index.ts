@@ -35,7 +35,7 @@ export {
   useEnableTwoFactor,
   useConfirmTwoFactor,
   useDisableTwoFactor,
-  useRecoveryCodes,
+  useRecoveryCodesStatus,
   useRegenerateRecoveryCodes,
 } from './hooks/useTwoFactor';
 export {

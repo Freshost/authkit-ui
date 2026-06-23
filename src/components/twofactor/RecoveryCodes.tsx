@@ -17,7 +17,7 @@ export interface RecoveryCodesProps {
 /**
  * Presents one-time recovery codes with a copy-all action and a warning that
  * they are shown only once. Purely presentational — the codes come from a
- * confirm/regenerate result or {@link useRecoveryCodes}.
+ * confirm/regenerate result (they are hashed at rest and cannot be re-read).
  */
 export function RecoveryCodes({ codes, title, onDone }: RecoveryCodesProps) {
   const { t } = useTranslation(AUTHKIT_NS);

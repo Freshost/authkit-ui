@@ -20,6 +20,8 @@ export const en = {
     submit: 'Sign in',
     submitting: 'Signing in…',
     rememberMe: 'Keep me signed in',
+    showPassword: 'Show password',
+    hidePassword: 'Hide password',
     error: 'Sign in failed. Check your email and password.',
     rateLimited: 'Too many attempts. Please wait a moment and try again.',
     accountDisabled: 'This account has been disabled. Contact an administrator.',

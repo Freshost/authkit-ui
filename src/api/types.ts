@@ -145,3 +145,11 @@ export interface TwoFactorEnrollmentResponse {
 export interface RecoveryCodesResponse {
   recoveryCodes: string[];
 }
+
+/**
+ * Status of a user's recovery codes. Codes are hashed at rest, so they can never
+ * be re-read after generation — the GET endpoint only reports how many remain.
+ */
+export interface RecoveryCodesStatusResponse {
+  remaining: number;
+}
