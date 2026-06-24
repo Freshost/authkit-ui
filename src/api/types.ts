@@ -50,7 +50,7 @@ export interface LoginHistoryEntry {
 }
 
 /**
- * Non-sensitive frontend config served at `{prefix}/meta` — the single source of
+ * Non-sensitive frontend config served at `/auth/meta` — the single source of
  * truth for role options, password rules and feature flags. The UI fetches this
  * instead of hardcoding/duplicating the backend config.
  */

@@ -32,7 +32,7 @@ export interface TwoFactorSetupProps {
 /**
  * Self-contained enrollment flow: start → scan QR / enter secret → confirm code
  * → show one-time recovery codes. Every step is dismissable: the QR step has a
- * "Start over" action and the recovery-codes step a "Done" action.
+ * Cancel action and the recovery-codes step a Close action.
  */
 export function TwoFactorSetup({ onEnabled, onFinished, onCancel }: TwoFactorSetupProps) {
   const { t } = useTranslation(AUTHKIT_NS);

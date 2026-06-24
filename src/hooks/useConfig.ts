@@ -14,7 +14,7 @@ type ConfigQueryOptions = Omit<
 >;
 
 /**
- * Fetches the backend's public frontend config ({prefix}/meta): the assignable
+ * Fetches the backend's public frontend config (`/auth/meta`): the assignable
  * role options, feature flags and password rules. This is the single source of
  * truth — the UI reads roles from here instead of hardcoding them. Cached
  * effectively forever since config is static for the app's lifetime.

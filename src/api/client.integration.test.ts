@@ -90,7 +90,7 @@ describe('AuthkitClient (real backend)', () => {
   });
 
   it('getRecoveryCodesStatus() for an authenticated admin without 2FA rejects (not_enrolled, 409)', async () => {
-    // Security contract M2: the GET endpoint returns a COUNT ({ remaining: number }),
+    // Security contract: the GET endpoint returns a COUNT ({ remaining: number }),
     // never the codes themselves — but only once 2FA is enrolled. The seeded admin
     // has no 2FA, so an authenticated call rejects with `not_enrolled` (409) rather
     // than leaking anything. The enrolled `{ remaining }` path is covered by the

@@ -124,12 +124,6 @@ export function makeRealClientWithLoginRetry(): AuthkitClient {
   };
 }
 
-/** A unique throwaway email so concurrent runs never collide. */
-export function uniqueEmail(prefix: string): string {
-  const suffix = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
-  return `${prefix}+${suffix}@authkit-it.test`;
-}
-
 /** A fresh i18next instance (en, react bindings) for rendering package UI. */
 export function makeI18n(): I18nInstance {
   const instance = i18next.createInstance();

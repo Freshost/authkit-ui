@@ -1,4 +1,4 @@
-import { test as base, type APIRequestContext, type Browser } from '@playwright/test';
+import { test as base } from '@playwright/test';
 
 /**
  * The demo backend rate-limits the login + 2FA-challenge endpoints to 5 attempts
@@ -22,11 +22,6 @@ export function clientIp(): string {
   // 10.x.y.z space, derived from a monotonic counter (well under 2^24 tests).
   const n = ipCounter + Math.floor(Math.random() * 1000) * 1000;
   return `10.${(n >> 16) & 0xff}.${(n >> 8) & 0xff}.${(n & 0xff) || 1}`;
-}
-
-/** An API request context pinned to a unique client IP via X-Forwarded-For. */
-export async function newApiContext(browser: Browser): Promise<APIRequestContext> {
-  return browser.newContext({ extraHTTPHeaders: { 'X-Forwarded-For': clientIp() } }).then((c) => c.request);
 }
 
 export const test = base.extend<{ rateLimitIp: string }>({

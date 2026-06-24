@@ -3,7 +3,7 @@ import { useSyncExternalStore } from 'react';
 import { Alert, AlertActionCloseButton, AlertGroup } from '@freshost/ui';
 import type { NotifyAdapter } from '@freshost/authkit-ui';
 
-// A tiny external toast store — mirrors how dns-console surfaces notifications.
+// A tiny external toast store — an example imperative notification store.
 // The adapter is what we hand to <AuthkitProvider notify={...}>.
 
 type Variant = 'success' | 'danger';

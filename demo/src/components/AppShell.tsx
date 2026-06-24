@@ -68,7 +68,7 @@ function isActive(item: NavItemDef, pathname: string): boolean {
 /**
  * PatternFly v6 application shell: `Page` + `Masthead` (toggle / brand / theme +
  * user menus) + `PageSidebar` vertical `Nav`, with content in a filled
- * `PageSection`. Mirrors the freshproxy / dns-console shells.
+ * `PageSection`.
  */
 export function AppShell({ children }: { children: ReactNode }) {
   const { t } = useTranslation();

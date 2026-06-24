@@ -35,7 +35,7 @@ void i18n.use(initReactI18next).init({
           },
           security: {
             title: 'Two-factor',
-            desc: 'Enroll in TOTP 2FA, view recovery codes, or disable it.',
+            desc: 'Enroll in TOTP 2FA, regenerate recovery codes, or disable it.',
           },
           users: {
             title: 'Users',

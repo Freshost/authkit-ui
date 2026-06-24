@@ -1,7 +1,7 @@
 /**
  * Notification adapter. The package never assumes a toast mechanism — each app
- * passes one of these to <AuthkitProvider>. dns-console wires its imperative
- * `notify` store; freshproxy wraps its `useToast()` context. Both reduce to
+ * passes one of these to <AuthkitProvider>. An app might wire an imperative
+ * notification store, or wrap a context-based `useToast()`; both reduce to
  * "show a success string" / "show an error string".
  */
 export interface NotifyAdapter {
