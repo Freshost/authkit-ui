@@ -26,14 +26,21 @@
       "import": "./dist/index.js"
     }
   },
+  "packageManager": "pnpm@10.9.0",
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run",
+    "test:unit": "vitest run --exclude '**/*.integration.test.*'",
     "coverage": "vitest run --coverage",
     "prepublishOnly": "pnpm build"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   },
   "dependencies": {
     "axios": "^1.7.9",
