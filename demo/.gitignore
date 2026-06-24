@@ -1,3 +1,7 @@
 *.tsbuildinfo
 .vite/
 .playwright-mcp/
+test-results/
+playwright-report/
+blob-report/
+.cache/

@@ -30,6 +30,9 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "coverage": "vitest run --coverage",
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
@@ -48,14 +51,22 @@
   "devDependencies": {
     "@freshost/ui": "^0.2.11",
     "@tanstack/react-query": "^5.62.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/react": "^18.3.31",
     "@types/react-dom": "^18.3.7",
+    "@vitest/coverage-v8": "^4.1.9",
+    "axios-cookiejar-support": "^7.0.0",
     "i18next": "^23.16.0",
+    "jsdom": "^29.1.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-i18next": "^15.1.0",
     "react-router": "^7.1.0",
+    "tough-cookie": "^6.0.1",
     "tsup": "^8.3.5",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^4.1.9"
   }
 }
