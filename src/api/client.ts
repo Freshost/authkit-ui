@@ -2,8 +2,11 @@ import axios, { type AxiosInstance, type AxiosRequestConfig, isAxiosError } from
 
 import type {
   ChangePasswordRequest,
+  CreateAPITokenRequest,
   CreateUserRequest,
   LoginHistoryEntry,
+  APITokenResponse,
+  IssuedAPITokenResponse,
   LoginRequest,
   LoginResult,
   MessageResponse,
@@ -68,6 +71,11 @@ export interface AuthkitClient {
   listSessions(): Promise<SessionResponse[]>;
   terminateSession(id: string): Promise<MessageResponse>;
   terminateOtherSessions(): Promise<MessageResponse>;
+  // --- personal API tokens (session-authenticated management only) ---
+  listAPITokens(): Promise<APITokenResponse[]>;
+  createAPIToken(body: CreateAPITokenRequest): Promise<IssuedAPITokenResponse>;
+  revokeAPIToken(id: string): Promise<MessageResponse>;
+  revokeAllAPITokens(): Promise<MessageResponse>;
   // --- two-factor management ---
   enableTwoFactor(): Promise<TwoFactorEnrollmentResponse>;
   confirmTwoFactor(body: TwoFactorConfirmRequest): Promise<RecoveryCodesResponse>;
@@ -141,6 +149,14 @@ export function createAuthkitClient(opts: CreateAuthkitClientOptions): AuthkitCl
       request<MessageResponse>({ method: 'DELETE', url: `/auth/sessions/${id}` }),
     terminateOtherSessions: () =>
       request<MessageResponse>({ method: 'DELETE', url: '/auth/sessions' }),
+
+    listAPITokens: () => request<APITokenResponse[]>({ method: 'GET', url: '/auth/api-tokens' }),
+    createAPIToken: (body) =>
+      request<IssuedAPITokenResponse>({ method: 'POST', url: '/auth/api-tokens', data: body }),
+    revokeAPIToken: (id) =>
+      request<MessageResponse>({ method: 'DELETE', url: `/auth/api-tokens/${id}` }),
+    revokeAllAPITokens: () =>
+      request<MessageResponse>({ method: 'DELETE', url: '/auth/api-tokens' }),
 
     enableTwoFactor: () =>
       request<TwoFactorEnrollmentResponse>({ method: 'POST', url: '/auth/two-factor' }),

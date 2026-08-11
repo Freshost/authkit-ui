@@ -11,7 +11,10 @@ export const API_BASE = 'http://127.0.0.1:8099/api/v1';
  */
 export async function newApiRequest(playwright: Playwright): Promise<APIRequestContext> {
   return playwright.request.newContext({
-    extraHTTPHeaders: { 'X-Forwarded-For': clientIp() },
+    extraHTTPHeaders: {
+      'X-Forwarded-For': clientIp(),
+      Origin: 'http://127.0.0.1:8099',
+    },
   });
 }
 

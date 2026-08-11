@@ -46,6 +46,7 @@ export {
   useSetUserPassword,
 } from './hooks/useUsers';
 export { useAuthkitConfig } from './hooks/useConfig';
+export { useAPITokens, useCreateAPIToken, useRevokeAPIToken, useRevokeAllAPITokens } from './hooks/useAPITokens';
 export {
   useLoginHistory,
   useSessions,
@@ -60,6 +61,7 @@ export { AccountPage, type AccountPageProps } from './components/AccountPage';
 export { ProfileForm, type ProfileFormProps } from './components/ProfileForm';
 export { LoginHistoryCard } from './components/LoginHistoryCard';
 export { SessionsCard } from './components/SessionsCard';
+export { APITokensCard } from './components/APITokensCard';
 export {
   ChangePasswordForm,
   type ChangePasswordFormProps,

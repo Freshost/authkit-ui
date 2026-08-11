@@ -28,6 +28,15 @@ export interface MetaFeatures {
   twoFactor: boolean;
   auditLog: boolean;
   sessions: boolean;
+  impersonation?: boolean;
+  apiTokens: boolean;
+}
+
+export interface APITokenMeta {
+  allowedScopes: string[];
+  defaultLifetimeDays: number;
+  maxLifetimeDays: number;
+  maxPerUser: number;
 }
 
 /** One active session (the secret session id is never exposed). */
@@ -59,6 +68,29 @@ export interface MetaResponse {
   roles: string[];
   minPasswordLength: number;
   features: MetaFeatures;
+  apiTokens?: APITokenMeta;
+}
+
+export interface APITokenResponse {
+  id: string;
+  name: string;
+  scopes: string[];
+  expiresAt: string;
+  lastUsedAt: string | null;
+  createdAt: string;
+}
+
+export interface CreateAPITokenRequest {
+  name: string;
+  expiresAt: string;
+  scopes: string[];
+  password: string;
+  twoFactorCode?: string;
+}
+
+export interface IssuedAPITokenResponse extends APITokenResponse {
+  /** Plaintext is returned exactly once and must not be persisted by the UI. */
+  token: string;
 }
 
 /** Simple `{ message }` envelope. */

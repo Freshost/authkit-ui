@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const baseURL = process.env.AUTHKIT_DEMO_BASE_URL ?? 'http://127.0.0.1:5173';
+
 /**
  * E2E config for the authkit-ui demo. Drives the REAL running stack:
  *   - Vite dev server at http://127.0.0.1:5173 (proxies /api -> :8099)
@@ -16,7 +18,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: [['list']],
   use: {
-    baseURL: 'http://127.0.0.1:5173',
+    baseURL,
     headless: true,
     trace: 'on-first-retry',
     actionTimeout: 15_000,
@@ -30,7 +32,7 @@ export default defineConfig({
   ],
   webServer: {
     command: 'pnpm dev',
-    url: 'http://127.0.0.1:5173',
+    url: baseURL,
     reuseExistingServer: true,
     timeout: 60_000,
   },

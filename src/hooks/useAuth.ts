@@ -30,6 +30,7 @@ export const authkitKeys = {
   config: ['authkit', 'config'] as const,
   sessions: ['authkit', 'sessions'] as const,
   logins: ['authkit', 'logins'] as const,
+  apiTokens: ['authkit', 'api-tokens'] as const,
 };
 
 type MeQueryOptions = Omit<

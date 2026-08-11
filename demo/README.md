@@ -2,7 +2,7 @@
 
 A minimal Vite + React app that wires **@freshost/authkit-ui** with the least code
 possible, so you can click through every feature: login, two-step 2FA, change
-password, and user management.
+password, personal API tokens, and user management.
 
 It consumes the library **from source** (no npm publish): `@freshost/authkit-ui`
 is aliased to `../src` in `vite.config.ts`, so editing the package hot-reloads
@@ -36,7 +36,8 @@ Sign in with **admin@demo.test / password123**.
 ## Try it
 
 - **Login / guard** — the app redirects to `/login` until authenticated.
-- **Account** — change your password (other sessions are signed out).
+- **Account** — edit your profile, change your password, inspect sessions, and
+  create/revoke expiring scoped API tokens (plaintext is shown once).
 - **Security** — enroll in 2FA (scan the QR), sign out and back in to see the
   two-step challenge; regenerate / use recovery codes; disable 2FA (password re-auth).
 - **Users** — create / edit / delete users and reset passwords.

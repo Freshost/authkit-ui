@@ -2,7 +2,7 @@
 
 React companion UI for [goravel-authkit](https://github.com/Freshost/goravel-authkit) —
 drop-in **login** (with two-step 2FA), **account / change-password**, **two-factor
-setup & recovery**, and **user management**, built on
+setup & recovery**, **personal API tokens**, and **user management**, built on
 [`@freshost/ui`](https://github.com/Freshost/freshost-ui) (PatternFly v6).
 
 It is framework-agnostic about your app's toast system, React Query config and
@@ -10,7 +10,8 @@ branding: everything is wired through a single `<AuthkitProvider>`. The package
 talks to the backend through its own thin, typed client over the stable authkit
 HTTP contract — no per-app SDK generation required.
 
-- **Session-cookie auth** (httpOnly, `withCredentials`) — no tokens, no localStorage.
+- **Session-cookie browser auth** (httpOnly, `withCredentials`) — no credentials
+  in localStorage. Optional API-token management shows plaintext only once.
 - **Three layers** — use the ready-made pages, or compose your own from the hooks.
 - **Peer-dependency model** — React, PatternFly, router, query and i18next come
   from your app, so there's never a duplicate React/PatternFly instance.
@@ -130,6 +131,7 @@ Colors come from `@freshost/ui` tokens (Freshost green) — no props needed.
 | `DisableTwoFactor` | password re-auth to turn 2FA off |
 | `TwoFactorChallenge` | the login challenge step (also reusable standalone) |
 | `UsersPage` + modals | user CRUD + reset-password (needs `user_management`) |
+| `APITokensCard` | create/list/revoke expiring scoped personal tokens (needs `api_tokens`) |
 
 **Hooks** (compose your own UI)
 
@@ -137,6 +139,7 @@ Colors come from `@freshost/ui` tokens (Freshost green) — no props needed.
 · `useEnableTwoFactor` · `useConfirmTwoFactor` · `useDisableTwoFactor` ·
 `useRecoveryCodes` · `useRegenerateRecoveryCodes` · `useUsers` · `useCreateUser` ·
 `useUpdateUser` · `useDeleteUser` · `useSetUserPassword`
+· `useAPITokens` · `useCreateAPIToken` · `useRevokeAPIToken` · `useRevokeAllAPITokens`
 
 The hooks set only **per-query** options (`retry`, `staleTime`) and never touch
 your global `QueryClient` defaults.

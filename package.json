@@ -1,7 +1,7 @@
 {
   "name": "@freshost/authkit-ui",
-  "version": "0.1.0",
-  "description": "React companion UI for goravel-authkit — drop-in login, account, 2FA and user-management built on @freshost/ui (PatternFly v6), framework-agnostic via an adapter Provider.",
+  "version": "0.2.0",
+  "description": "React companion UI for goravel-authkit — drop-in login, account, 2FA, API-token and user-management built on @freshost/ui (PatternFly v6), framework-agnostic via an adapter Provider.",
   "type": "module",
   "license": "MIT",
   "author": "Freshost",

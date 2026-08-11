@@ -20,6 +20,7 @@ test.describe('account page (throwaway user)', () => {
   });
 
   test.afterEach(async ({ playwright }) => {
+    if (!user) return;
     const request = await newApiRequest(playwright);
     await deleteUserViaApi(request, user.id);
     await request.dispose();
@@ -59,5 +60,34 @@ test.describe('account page (throwaway user)', () => {
     await expect(freshPage).toHaveURL(/\/$/);
     await expect(freshPage.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
     await fresh.close();
+  });
+
+  test('the throwaway user can create and revoke an API token', async ({ page }) => {
+    await page.goto('/login');
+    await fillAndSubmitLogin(page, user.email, user.password);
+    await expect(page).toHaveURL(/\/$/);
+    await page.goto('/account');
+
+    await page.getByRole('button', { name: 'Create token', exact: true }).click();
+    const createDialog = page.getByRole('dialog', { name: 'Create API token' });
+    await createDialog.locator('#authkit-token-name').fill('Playwright CLI');
+    const expires = new Date();
+    expires.setUTCDate(expires.getUTCDate() + 7);
+    await createDialog.locator('#authkit-token-expiry').fill(expires.toISOString().slice(0, 10));
+    await createDialog.getByLabel('profile:read').check();
+    await createDialog.locator('#authkit-token-password').fill(user.password);
+    await createDialog.getByRole('button', { name: 'Create token', exact: true }).click();
+
+    const issuedDialog = page.getByRole('dialog', { name: 'Copy your API token' });
+    await expect(issuedDialog.getByText('Copy this token now. It will not be shown again.')).toBeVisible();
+    await expect(issuedDialog.locator('pre')).toContainText('gak_');
+    await issuedDialog.getByRole('contentinfo').getByRole('button', { name: 'Close' }).click();
+
+    const row = page.getByRole('row').filter({ hasText: 'Playwright CLI' });
+    await expect(row).toContainText('profile:read');
+    await row.getByRole('button', { name: 'Revoke' }).click();
+    const revokeDialog = page.getByRole('dialog', { name: 'Revoke Playwright CLI?' });
+    await revokeDialog.getByRole('button', { name: 'Revoke' }).click();
+    await expect(row).toHaveCount(0);
   });
 });

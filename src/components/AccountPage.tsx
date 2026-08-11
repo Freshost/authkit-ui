@@ -8,6 +8,7 @@ import { ChangePasswordForm, type ChangePasswordFormProps } from './ChangePasswo
 import { LoginHistoryCard } from './LoginHistoryCard';
 import { ProfileForm } from './ProfileForm';
 import { SessionsCard } from './SessionsCard';
+import { APITokensCard } from './APITokensCard';
 
 export interface AccountPageProps {
   /** Forwarded to the change-password form (e.g. navigate after success). */
@@ -44,6 +45,11 @@ export function AccountPage({ onSuccess }: AccountPageProps) {
       {features?.sessions ? (
         <StackItem>
           <SessionsCard />
+        </StackItem>
+      ) : null}
+      {features?.apiTokens ? (
+        <StackItem>
+          <APITokensCard />
         </StackItem>
       ) : null}
       {features?.auditLog ? (
