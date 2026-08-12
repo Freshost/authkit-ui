@@ -1,6 +1,8 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig, isAxiosError } from 'axios';
 
 import type {
+  AdminLoginPage,
+  AdminLoginQuery,
   ChangePasswordRequest,
   CreateAPITokenRequest,
   CreateUserRequest,
@@ -72,6 +74,8 @@ export interface AuthkitClient {
   stopImpersonating(): Promise<MessageResponse>;
   /** Recent successful sign-ins for the current user. */
   getLoginHistory(): Promise<LoginHistoryEntry[]>;
+  /** Paginated successful sign-ins across this guard; requires an administrator role. */
+  listAdminLogins(query?: AdminLoginQuery): Promise<AdminLoginPage>;
   // --- active sessions ---
   listSessions(): Promise<SessionResponse[]>;
   terminateSession(id: string): Promise<MessageResponse>;
@@ -153,6 +157,8 @@ export function createAuthkitClient(opts: CreateAuthkitClientOptions): AuthkitCl
       request<MessageResponse>({ method: 'POST', url: '/auth/impersonate/stop' }),
 
     getLoginHistory: () => request<LoginHistoryEntry[]>({ method: 'GET', url: '/auth/logins' }),
+    listAdminLogins: (query = {}) =>
+      request<AdminLoginPage>({ method: 'GET', url: '/auth/admin/logins', params: query }),
     listSessions: () => request<SessionResponse[]>({ method: 'GET', url: '/auth/sessions' }),
     terminateSession: (id) =>
       request<MessageResponse>({ method: 'DELETE', url: `/auth/sessions/${id}` }),

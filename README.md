@@ -2,7 +2,8 @@
 
 React companion UI for [goravel-authkit](https://github.com/Freshost/goravel-authkit) —
 drop-in **login** (with two-step 2FA), **account / change-password**, **two-factor
-setup & recovery**, **personal API tokens**, **user impersonation**, and **user management**, built on
+setup & recovery**, **personal API tokens**, **user impersonation**, **administrator
+sign-in activity**, and **user management**, built on
 [`@freshost/ui`](https://github.com/Freshost/freshost-ui) (PatternFly v6).
 
 It is framework-agnostic about your app's toast system, React Query config and
@@ -57,7 +58,7 @@ import { AuthkitProvider } from '@freshost/authkit-ui';
 Then drop the pages into your routes:
 
 ```tsx
-import { LoginPage, AuthGuard, AccountPage, UsersPage } from '@freshost/authkit-ui';
+import { LoginPage, AuthGuard, AccountPage, AdminLoginsPage, UsersPage } from '@freshost/authkit-ui';
 import { LanguageMenu } from './LanguageMenu';
 
 <Routes>
@@ -70,6 +71,7 @@ import { LanguageMenu } from './LanguageMenu';
           <Routes>
             <Route path="/account" element={<AccountPage />} />
             <Route path="/users" element={<UsersPage />} />
+            <Route path="/sign-ins" element={<AdminLoginsPage />} />
           </Routes>
         </AppShell>
       </AuthGuard>
@@ -139,6 +141,8 @@ Colors come from `@freshost/ui` tokens (Freshost green) — no props needed.
 | `UsersPage` + modals | user CRUD + reset-password (needs `user_management`) |
 | `APITokensCard` | create/list/revoke expiring scoped personal tokens (needs `api_tokens`) |
 | `ImpersonationBanner` | persistent impersonated-identity warning with a restore action |
+| `AdminLoginsPage` | paginated successful sign-ins across the current guard (admin role-gated) |
+| `AdminLoginsCard` | compact recent sign-ins for a dashboard, with an optional host-owned “View all” action |
 
 **Hooks** (compose your own UI)
 
@@ -147,10 +151,22 @@ Colors come from `@freshost/ui` tokens (Freshost green) — no props needed.
 `useRecoveryCodes` · `useRegenerateRecoveryCodes` · `useUsers` · `useCreateUser` ·
 `useUpdateUser` · `useDeleteUser` · `useSetUserPassword`
 · `useAPITokens` · `useCreateAPIToken` · `useRevokeAPIToken` · `useRevokeAllAPITokens`
-· `useImpersonate` · `useStopImpersonating`
+· `useImpersonate` · `useStopImpersonating` · `useAdminLogins`
 
 The hooks set only **per-query** options (`retry`, `staleTime`) and never touch
 your global `QueryClient` defaults.
+
+Embed the administrator overview in a dashboard without mounting the full page:
+
+```tsx
+<AdminLoginsCard
+  limit={5}
+  onViewAll={() => navigate('/sign-ins')}
+/>
+```
+
+`limit` defaults to 5 and is constrained to the backend's 1–100 page size.
+Omit `onViewAll` when the dashboard should not link to a full history page.
 
 ## Impersonation
 

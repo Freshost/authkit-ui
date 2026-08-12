@@ -59,6 +59,10 @@ export function makeRealClient(): AuthkitClient {
   const instance = cookieJarWrapper(
     axios.create({ jar, withCredentials: true, adapter: 'http' }),
   );
+  // Node does not add browser origin headers. Authkit's fail-closed CSRF check
+  // requires one for state-changing session requests, so model a same-origin
+  // browser explicitly in the real-client integration harness.
+  instance.defaults.headers.common.Origin = new URL(BASE_URL).origin;
   // Own rate-limit bucket per client (see uniqueForwardedFor).
   instance.defaults.headers.common['X-Forwarded-For'] = uniqueForwardedFor();
   return createAuthkitClient({ baseURL: BASE_URL, axiosInstance: instance });

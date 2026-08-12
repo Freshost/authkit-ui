@@ -17,6 +17,7 @@ void i18n.use(initReactI18next).init({
           account: 'Account',
           security: 'Security',
           users: 'Users',
+          signIns: 'Sign-ins',
           accountSettings: 'Account settings',
           logout: 'Sign out',
           theme: 'Theme',

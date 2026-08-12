@@ -39,6 +39,7 @@ import {
   HomeIcon,
   KeyIcon,
   SecurityIcon,
+  HistoryIcon,
   SignOutAltIcon,
   UserIcon,
   UsersIcon,
@@ -60,6 +61,7 @@ const NAV: NavItemDef[] = [
   { href: '/account', labelKey: 'nav.account', icon: KeyIcon },
   { href: '/security', labelKey: 'nav.security', icon: SecurityIcon },
   { href: '/users', labelKey: 'nav.users', icon: UsersIcon },
+  { href: '/sign-ins', labelKey: 'nav.signIns', icon: HistoryIcon },
 ];
 
 function isActive(item: NavItemDef, pathname: string): boolean {

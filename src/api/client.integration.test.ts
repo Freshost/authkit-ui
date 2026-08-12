@@ -77,6 +77,14 @@ describe('AuthkitClient (real backend)', () => {
     expect(me.role).toBe('admin');
   });
 
+  it('listAdminLogins() returns a paginated cross-user sign-in overview', async () => {
+    const page = await admin.listAdminLogins({ page: 1, perPage: 10 });
+    expect(page.page).toBe(1);
+    expect(page.perPage).toBe(10);
+    expect(page.total).toBeGreaterThan(0);
+    expect(page.items.some((entry) => entry.userEmail === ADMIN_EMAIL)).toBe(true);
+  });
+
   it('getRecoveryCodesStatus() unauthenticated rejects with 401', async () => {
     const client = makeRealClient();
     let caught: unknown;

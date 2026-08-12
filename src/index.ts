@@ -46,6 +46,7 @@ export {
   useSetUserPassword,
 } from './hooks/useUsers';
 export { useAuthkitConfig } from './hooks/useConfig';
+export { useAdminLogins } from './hooks/useAdminLogins';
 export { useAPITokens, useCreateAPIToken, useRevokeAPIToken, useRevokeAllAPITokens } from './hooks/useAPITokens';
 export {
   useLoginHistory,
@@ -67,6 +68,11 @@ export { ProfileForm, type ProfileFormProps } from './components/ProfileForm';
 export { LoginHistoryCard } from './components/LoginHistoryCard';
 export { SessionsCard } from './components/SessionsCard';
 export { APITokensCard } from './components/APITokensCard';
+export { AdminLoginsPage } from './components/AdminLoginsPage';
+export {
+  AdminLoginsCard,
+  type AdminLoginsCardProps,
+} from './components/AdminLoginsCard';
 export {
   ImpersonationBanner,
   type ImpersonationBannerProps,

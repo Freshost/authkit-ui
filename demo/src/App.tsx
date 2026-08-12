@@ -1,6 +1,6 @@
 import { Navigate, Outlet, Route, Routes } from 'react-router';
 
-import { AccountPage, AuthGuard, LoginPage, UsersPage } from '@freshost/authkit-ui';
+import { AccountPage, AdminLoginsPage, AuthGuard, LoginPage, UsersPage } from '@freshost/authkit-ui';
 
 import { AppShell } from './components/AppShell';
 import { ThemeToggle } from './components/ThemeToggle';
@@ -39,6 +39,7 @@ export function App() {
         <Route path="/account" element={<AccountPage />} />
         <Route path="/security" element={<SecurityPage />} />
         <Route path="/users" element={<UsersPage />} />
+        <Route path="/sign-ins" element={<AdminLoginsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

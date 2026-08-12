@@ -73,6 +73,32 @@ export interface LoginHistoryEntry {
   createdAt: string;
 }
 
+/** One successful sign-in visible in the role-gated administrator overview. */
+export interface AdminLoginEvent {
+  id: string;
+  /** Null only when a legacy audit event has no actor id. */
+  userId: string | null;
+  userName: string;
+  userEmail: string;
+  /** `auth.login` (password) or `auth.login_remember` (remember cookie). */
+  action: string;
+  ip: string;
+  createdAt: string;
+}
+
+export interface AdminLoginPage {
+  items: AdminLoginEvent[];
+  page: number;
+  perPage: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface AdminLoginQuery {
+  page?: number;
+  perPage?: number;
+}
+
 /**
  * Non-sensitive frontend config served at `/auth/meta` — the single source of
  * truth for role options, password rules and feature flags. The UI fetches this

@@ -30,6 +30,8 @@ export const authkitKeys = {
   config: ['authkit', 'config'] as const,
   sessions: ['authkit', 'sessions'] as const,
   logins: ['authkit', 'logins'] as const,
+  adminLogins: (page: number, perPage: number) =>
+    ['authkit', 'admin-logins', { page, perPage }] as const,
   apiTokens: ['authkit', 'api-tokens'] as const,
 };
 

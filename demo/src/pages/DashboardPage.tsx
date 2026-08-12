@@ -24,7 +24,7 @@ import {
   UsersIcon,
   type SVGIconProps,
 } from '@freshost/ui/icons';
-import { useMe } from '@freshost/authkit-ui';
+import { AdminLoginsCard, useMe } from '@freshost/authkit-ui';
 
 interface Feature {
   to: string;
@@ -93,6 +93,9 @@ export function DashboardPage() {
             );
           })}
         </Gallery>
+      </StackItem>
+      <StackItem>
+        <AdminLoginsCard limit={5} onViewAll={() => navigate('/sign-ins')} />
       </StackItem>
     </Stack>
   );
