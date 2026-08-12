@@ -27,6 +27,20 @@ test.describe('login', () => {
     await expect(page).toHaveURL(/\/login$/);
   });
 
+  test('a transport failure is not reported as an invalid password', async ({ page }) => {
+    await page.route('**/auth/login', (route) => route.abort('failed'));
+    await page.goto('/login');
+    await fillAndSubmitLogin(page, ADMIN.email, ADMIN.password);
+
+    await expect(
+      page.getByText('Cannot connect to the server. Check your connection and try again.'),
+    ).toBeVisible();
+    await expect(
+      page.getByText('Sign in failed. Check your email and password.'),
+    ).not.toBeVisible();
+    await expect(page).toHaveURL(/\/login$/);
+  });
+
   test('remember-me is a Switch and can be toggled', async ({ page }) => {
     await page.goto('/login');
     const remember = page.getByRole('switch', { name: 'Keep me signed in' });

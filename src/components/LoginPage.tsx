@@ -22,7 +22,7 @@ import { isTwoFactorRequired, type UserResponse } from '../api/types';
 import { useLogin } from '../hooks/useAuth';
 import { AUTHKIT_NS } from '../i18n';
 import { useAuthkit } from '../provider';
-import { codeFrom } from '../utils';
+import { loginErrorKey } from '../utils';
 import { TwoFactorChallenge } from './twofactor/TwoFactorChallenge';
 
 /**
@@ -117,14 +117,7 @@ export function LoginPage({
     );
   };
 
-  const errorCode = login.isError ? codeFrom(login.error) : '';
-  const errorText = login.isError
-    ? errorCode === 'rate_limited'
-      ? t('login.rateLimited')
-      : errorCode === 'account_disabled'
-        ? t('login.accountDisabled')
-        : t('login.error')
-    : '';
+  const errorText = login.isError ? t(loginErrorKey(login.error)) : '';
 
   return (
     <PFLoginPage
