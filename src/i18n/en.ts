@@ -130,6 +130,20 @@ export const en = {
     mismatch: 'The passwords do not match.',
     tooShort: 'Password must be at least {{min}} characters.',
   },
+  impersonation: {
+    start: 'Sign in as user',
+    started: 'Now signed in as {{email}}.',
+    startError: 'Could not sign in as this user.',
+    confirmTitle: 'Sign in as {{email}}?',
+    confirmBody:
+      'You will act as this user until you stop impersonating. Sensitive account actions are disabled during the session.',
+    bannerTitle: 'You are signed in as {{email}}',
+    bannerBody: 'Original account: {{email}}',
+    stop: 'Stop impersonating',
+    stopping: 'Stopping…',
+    stopped: 'Impersonation ended.',
+    stopError: 'Could not stop impersonating.',
+  },
   users: {
     title: 'Users',
     emailLabel: 'Email',

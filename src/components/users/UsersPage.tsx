@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
 
 import {
   ActionsColumn,
@@ -26,10 +27,13 @@ import {
 import { PlusIcon } from '@freshost/ui/icons';
 
 import type { UserResponse } from '../../api/types';
+import { useMe } from '../../hooks/useAuth';
 import { useAuthkitConfig } from '../../hooks/useConfig';
 import { useUsers } from '../../hooks/useUsers';
 import { AUTHKIT_NS } from '../../i18n';
+import { useAuthkit } from '../../provider';
 import { DeleteUserModal } from './DeleteUserModal';
+import { ImpersonateUserModal } from './ImpersonateUserModal';
 import { SetUserPasswordModal } from './SetUserPasswordModal';
 import { UserFormModal } from './UserFormModal';
 
@@ -37,8 +41,14 @@ type ModalState =
   | { kind: 'create' }
   | { kind: 'edit'; user: UserResponse }
   | { kind: 'password'; user: UserResponse }
+  | { kind: 'impersonate'; user: UserResponse }
   | { kind: 'delete'; user: UserResponse }
   | null;
+
+export interface UsersPageProps {
+  /** Called after same-guard impersonation starts. Defaults to navigating home. */
+  onImpersonated?: (user: UserResponse) => void;
+}
 
 function formatDate(iso: string): string {
   if (!iso) {
@@ -52,11 +62,14 @@ function formatDate(iso: string): string {
  * Drop-in user-management page: a table of users with create / edit / reset-
  * password / delete actions. Requires the backend `user_management` feature.
  */
-export function UsersPage() {
+export function UsersPage({ onImpersonated }: UsersPageProps) {
   const { t } = useTranslation(AUTHKIT_NS);
   const { data: users, isLoading, isError } = useUsers();
+  const me = useMe();
   // Warm the config cache so the role select is ready when a modal opens.
-  useAuthkitConfig();
+  const config = useAuthkitConfig();
+  const { routes } = useAuthkit();
+  const navigate = useNavigate();
   const [modal, setModal] = useState<ModalState>(null);
   const close = () => setModal(null);
 
@@ -118,6 +131,17 @@ export function UsersPage() {
                   <Td isActionCell>
                     <ActionsColumn
                       items={[
+                        ...(config.data?.features.impersonation &&
+                        !user.disabled &&
+                        user.id !== me.data?.id
+                          ? [
+                              {
+                                title: t('impersonation.start'),
+                                onClick: () => setModal({ kind: 'impersonate', user }),
+                              },
+                              { isSeparator: true as const },
+                            ]
+                          : []),
                         { title: t('users.edit'), onClick: () => setModal({ kind: 'edit', user }) },
                         {
                           title: t('users.resetPassword'),
@@ -143,6 +167,19 @@ export function UsersPage() {
       {modal?.kind === 'edit' ? <UserFormModal user={modal.user} onClose={close} /> : null}
       {modal?.kind === 'password' ? (
         <SetUserPasswordModal user={modal.user} onClose={close} />
+      ) : null}
+      {modal?.kind === 'impersonate' ? (
+        <ImpersonateUserModal
+          user={modal.user}
+          onClose={close}
+          onImpersonated={(user) => {
+            if (onImpersonated) {
+              onImpersonated(user);
+            } else {
+              navigate(routes.home, { replace: true });
+            }
+          }}
+        />
       ) : null}
       {modal?.kind === 'delete' ? <DeleteUserModal user={modal.user} onClose={close} /> : null}
     </Stack>

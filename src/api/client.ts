@@ -7,6 +7,7 @@ import type {
   LoginHistoryEntry,
   APITokenResponse,
   IssuedAPITokenResponse,
+  ImpersonateRequest,
   LoginRequest,
   LoginResult,
   MessageResponse,
@@ -65,6 +66,10 @@ export interface AuthkitClient {
   getMe(): Promise<UserResponse>;
   updateProfile(body: UpdateProfileRequest): Promise<UserResponse>;
   changePassword(body: ChangePasswordRequest): Promise<MessageResponse>;
+  /** Switch this session into another user. Omit guard for same-guard impersonation. */
+  impersonate(body: ImpersonateRequest): Promise<UserResponse>;
+  /** End impersonation for this client's guard and restore the original actor. */
+  stopImpersonating(): Promise<MessageResponse>;
   /** Recent successful sign-ins for the current user. */
   getLoginHistory(): Promise<LoginHistoryEntry[]>;
   // --- active sessions ---
@@ -142,6 +147,10 @@ export function createAuthkitClient(opts: CreateAuthkitClientOptions): AuthkitCl
       request<UserResponse>({ method: 'PUT', url: '/auth/me', data: body }),
     changePassword: (body) =>
       request<MessageResponse>({ method: 'PUT', url: '/auth/password', data: body }),
+    impersonate: (body) =>
+      request<UserResponse>({ method: 'POST', url: '/auth/impersonate', data: body }),
+    stopImpersonating: () =>
+      request<MessageResponse>({ method: 'POST', url: '/auth/impersonate/stop' }),
 
     getLoginHistory: () => request<LoginHistoryEntry[]>({ method: 'GET', url: '/auth/logins' }),
     listSessions: () => request<SessionResponse[]>({ method: 'GET', url: '/auth/sessions' }),

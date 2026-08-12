@@ -43,7 +43,8 @@ export function UserFormModal({ user, onClose }: UserFormModalProps) {
   const roles = useAuthkitConfig().data?.roles ?? [];
   const roleOptions =
     roles.length > 0 && user?.role && !roles.includes(user.role) ? [user.role, ...roles] : roles;
-  const defaultRole = user?.role ?? roleOptions[0] ?? 'admin';
+  const defaultRole =
+    user?.role ?? roleOptions.find((candidate) => candidate !== 'admin') ?? roleOptions[0] ?? 'user';
 
   const [email, setEmail] = useState(user?.email ?? '');
   const [name, setName] = useState(user?.name ?? '');

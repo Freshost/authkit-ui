@@ -25,6 +25,8 @@ import {
   PageSidebar,
   PageSidebarBody,
   PageToggleButton,
+  Stack,
+  StackItem,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
@@ -42,7 +44,7 @@ import {
   UsersIcon,
   type SVGIconProps,
 } from '@freshost/ui/icons';
-import { useLogout, useMe } from '@freshost/authkit-ui';
+import { ImpersonationBanner, useLogout, useMe } from '@freshost/authkit-ui';
 
 import { ThemeToggle } from './ThemeToggle';
 
@@ -144,7 +146,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <Page masthead={masthead} sidebar={sidebar} isManagedSidebar isContentFilled>
       <PageSection isFilled hasOverflowScroll aria-label={t('nav.primary')}>
-        {children}
+        <Stack hasGutter>
+          {me.data?.impersonatedBy ? (
+            <StackItem>
+              <ImpersonationBanner />
+            </StackItem>
+          ) : null}
+          <StackItem isFilled>{children}</StackItem>
+        </Stack>
       </PageSection>
     </Page>
   );

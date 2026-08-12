@@ -2,7 +2,7 @@
 
 React companion UI for [goravel-authkit](https://github.com/Freshost/goravel-authkit) —
 drop-in **login** (with two-step 2FA), **account / change-password**, **two-factor
-setup & recovery**, **personal API tokens**, and **user management**, built on
+setup & recovery**, **personal API tokens**, **user impersonation**, and **user management**, built on
 [`@freshost/ui`](https://github.com/Freshost/freshost-ui) (PatternFly v6).
 
 It is framework-agnostic about your app's toast system, React Query config and
@@ -41,6 +41,7 @@ import { AuthkitProvider } from '@freshost/authkit-ui';
     <BrowserRouter>
       <AuthkitProvider
         baseURL="/api/v1"
+        guard="admin"
         notify={notifyAdapter}
         branding={{ appName: 'My App', logo: '/logo.svg' }}
         routes={{ login: '/login', home: '/', account: '/account' }}
@@ -137,6 +138,7 @@ Colors come from `@freshost/ui` tokens (Freshost green) — no props needed.
 | `TwoFactorChallenge` | the login challenge step (also reusable standalone) |
 | `UsersPage` + modals | user CRUD + reset-password (needs `user_management`) |
 | `APITokensCard` | create/list/revoke expiring scoped personal tokens (needs `api_tokens`) |
+| `ImpersonationBanner` | persistent impersonated-identity warning with a restore action |
 
 **Hooks** (compose your own UI)
 
@@ -145,9 +147,46 @@ Colors come from `@freshost/ui` tokens (Freshost green) — no props needed.
 `useRecoveryCodes` · `useRegenerateRecoveryCodes` · `useUsers` · `useCreateUser` ·
 `useUpdateUser` · `useDeleteUser` · `useSetUserPassword`
 · `useAPITokens` · `useCreateAPIToken` · `useRevokeAPIToken` · `useRevokeAllAPITokens`
+· `useImpersonate` · `useStopImpersonating`
 
 The hooks set only **per-query** options (`retry`, `staleTime`) and never touch
 your global `QueryClient` defaults.
+
+## Impersonation
+
+When the backend enables impersonation, `UsersPage` adds a confirmed **Sign in as
+user** action for eligible same-guard users. Mount the banner once in the
+authenticated application shell so the switched identity and exit action remain
+visible after navigation and reloads:
+
+```tsx
+<AppShell>
+  <ImpersonationBanner onStopped={() => navigate('/')} />
+  <Outlet />
+</AppShell>
+```
+
+The banner reads `impersonatedBy` from `/auth/me`; it does not rely on transient
+browser state. While impersonating, `AccountPage` hides password and API-token
+controls that the backend rejects.
+
+Cross-guard impersonation is host-composed because only the application knows
+the target portal URL. Call the actor guard's hook with a target guard, then
+navigate after success. Mount a separate provider/client at the target portal;
+set its `guard` prop so the banner calls the target guard's stop endpoint without
+trying to load an actor from the now-signed-out target guard:
+
+```tsx
+impersonate.mutate(
+  { guard: 'client', userId: client.id },
+  { onSuccess: () => window.location.assign('/client') },
+);
+
+// Inside the client portal provider:
+<AuthkitProvider guard="client" baseURL="/api/client/v1">
+  <ImpersonationBanner onStopped={() => window.location.assign('/admin')} />
+</AuthkitProvider>;
+```
 
 ## i18n
 

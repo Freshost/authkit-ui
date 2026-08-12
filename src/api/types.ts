@@ -14,6 +14,21 @@ export interface UserResponse {
   disabled: boolean;
   /** RFC3339 timestamp. */
   createdAt: string;
+  /** Present only while this session is acting as another user. */
+  impersonatedBy?: ImpersonatorRef;
+}
+
+/** The original actor retained by the backend during impersonation. */
+export interface ImpersonatorRef {
+  guard: string;
+  id: string;
+  email: string;
+}
+
+/** Starts impersonation. Omit guard for a user in the current guard. */
+export interface ImpersonateRequest {
+  userId: string;
+  guard?: string;
 }
 
 /** Standard error envelope: `{ error, message }`. */

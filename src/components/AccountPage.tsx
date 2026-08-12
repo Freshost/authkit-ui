@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardBody, CardTitle, Stack, StackItem } from '@freshost/ui';
 
 import { useAuthkitConfig } from '../hooks/useConfig';
+import { useMe } from '../hooks/useAuth';
 import { AUTHKIT_NS } from '../i18n';
 import { ChangePasswordForm, type ChangePasswordFormProps } from './ChangePasswordForm';
 import { LoginHistoryCard } from './LoginHistoryCard';
@@ -23,6 +24,7 @@ export interface AccountPageProps {
 export function AccountPage({ onSuccess }: AccountPageProps) {
   const { t } = useTranslation(AUTHKIT_NS);
   const features = useAuthkitConfig().data?.features;
+  const impersonating = Boolean(useMe().data?.impersonatedBy);
 
   return (
     <Stack hasGutter>
@@ -34,20 +36,22 @@ export function AccountPage({ onSuccess }: AccountPageProps) {
           </CardBody>
         </Card>
       </StackItem>
-      <StackItem>
-        <Card>
-          <CardTitle>{t('account.title')}</CardTitle>
-          <CardBody>
-            <ChangePasswordForm onSuccess={onSuccess} />
-          </CardBody>
-        </Card>
-      </StackItem>
+      {!impersonating ? (
+        <StackItem>
+          <Card>
+            <CardTitle>{t('account.title')}</CardTitle>
+            <CardBody>
+              <ChangePasswordForm onSuccess={onSuccess} />
+            </CardBody>
+          </Card>
+        </StackItem>
+      ) : null}
       {features?.sessions ? (
         <StackItem>
           <SessionsCard />
         </StackItem>
       ) : null}
-      {features?.apiTokens ? (
+      {features?.apiTokens && !impersonating ? (
         <StackItem>
           <APITokensCard />
         </StackItem>

@@ -26,6 +26,8 @@ export interface AuthkitRoutes {
 
 export interface AuthkitContextValue {
   client: AuthkitClient;
+  /** Current backend guard name; required for automatic cross-guard stop handling. */
+  guard?: string;
   notify: NotifyAdapter;
   branding: AuthkitBranding;
   routes: AuthkitRoutes;
@@ -46,6 +48,8 @@ export interface AuthkitProviderProps {
    * build a default client when `client` is omitted.
    */
   baseURL?: string;
+  /** Backend guard served by this provider (for example `admin` or `client`). */
+  guard?: string;
   /** Toast adapter. Defaults to a silent no-op. */
   notify?: NotifyAdapter;
   /** Login-page branding. */
@@ -65,6 +69,7 @@ export interface AuthkitProviderProps {
 export function AuthkitProvider({
   client,
   baseURL,
+  guard,
   notify,
   branding,
   routes,
@@ -84,12 +89,13 @@ export function AuthkitProvider({
   const value = useMemo<AuthkitContextValue>(
     () => ({
       client: resolvedClient,
+      guard,
       notify: notify ?? noopNotify,
       branding: branding ?? EMPTY_BRANDING,
       routes: { ...DEFAULT_ROUTES, ...routes },
       minPasswordLength: minPasswordLength ?? 8,
     }),
-    [resolvedClient, notify, branding, routes, minPasswordLength],
+    [resolvedClient, guard, notify, branding, routes, minPasswordLength],
   );
 
   return <AuthkitContext.Provider value={value}>{children}</AuthkitContext.Provider>;

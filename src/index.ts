@@ -53,6 +53,11 @@ export {
   useTerminateSession,
   useTerminateOtherSessions,
 } from './hooks/useSessions';
+export {
+  useImpersonate,
+  useStopImpersonating,
+  type StopImpersonatingOptions,
+} from './hooks/useImpersonation';
 
 // Components
 export { AuthGuard, type AuthGuardProps } from './components/AuthGuard';
@@ -62,6 +67,10 @@ export { ProfileForm, type ProfileFormProps } from './components/ProfileForm';
 export { LoginHistoryCard } from './components/LoginHistoryCard';
 export { SessionsCard } from './components/SessionsCard';
 export { APITokensCard } from './components/APITokensCard';
+export {
+  ImpersonationBanner,
+  type ImpersonationBannerProps,
+} from './components/ImpersonationBanner';
 export {
   ChangePasswordForm,
   type ChangePasswordFormProps,
@@ -84,7 +93,11 @@ export {
   type DisableTwoFactorProps,
 } from './components/twofactor/DisableTwoFactor';
 export { RecoveryCodes, type RecoveryCodesProps } from './components/twofactor/RecoveryCodes';
-export { UsersPage } from './components/users/UsersPage';
+export { UsersPage, type UsersPageProps } from './components/users/UsersPage';
+export {
+  ImpersonateUserModal,
+  type ImpersonateUserModalProps,
+} from './components/users/ImpersonateUserModal';
 export { UserFormModal, type UserFormModalProps } from './components/users/UserFormModal';
 export {
   SetUserPasswordModal,
