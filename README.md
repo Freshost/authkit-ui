@@ -57,9 +57,10 @@ Then drop the pages into your routes:
 
 ```tsx
 import { LoginPage, AuthGuard, AccountPage, UsersPage } from '@freshost/authkit-ui';
+import { LanguageMenu } from './LanguageMenu';
 
 <Routes>
-  <Route path="/login" element={<LoginPage />} />
+  <Route path="/login" element={<LoginPage headerUtilities={<LanguageMenu showLabel />} />} />
   <Route
     path="/*"
     element={
@@ -75,6 +76,10 @@ import { LoginPage, AuthGuard, AccountPage, UsersPage } from '@freshost/authkit-
   />
 </Routes>;
 ```
+
+Use `headerUtilities` for controls such as a language selector. Authkit passes
+the node to PatternFly's native login-header utilities area; `footer` remains
+intended for footer links.
 
 ## The notify adapter
 

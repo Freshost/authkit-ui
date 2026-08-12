@@ -18,12 +18,13 @@ const ADMIN_PASSWORD = 'password123';
 describe('<LoginPage /> (real backend)', () => {
   it('renders remember-me Switch and show-password control with accessible names', () => {
     const client = makeRealClient();
-    renderWithAuthkit(<LoginPage />, { client });
+    renderWithAuthkit(<LoginPage headerUtilities={<span>Language selector</span>} />, { client });
 
     // Switch label "Keep me signed in" (login.rememberMe).
     expect(screen.getByLabelText('Keep me signed in')).toBeInTheDocument();
     // Show/hide password toggle (login.showPassword) — accessible via aria-label.
     expect(screen.getByRole('button', { name: 'Show password' })).toBeInTheDocument();
+    expect(screen.getByText('Language selector')).toBeInTheDocument();
   });
 
   it('logs in the admin and fires onSuccess with the real backend user', async () => {

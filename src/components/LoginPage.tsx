@@ -50,6 +50,8 @@ export interface LoginPageProps {
   initialPassword?: string;
   /** Footer list items (links) passed through to the PatternFly login page. */
   footer?: ReactNode;
+  /** Utilities rendered in the PatternFly login header, such as a language menu. */
+  headerUtilities?: ReactNode;
   /** "Sign up" band content. */
   signUp?: ReactNode;
   /** "Forgot credentials" content. */
@@ -67,6 +69,7 @@ export interface LoginPageProps {
 export function LoginPage({
   onSuccess,
   footer,
+  headerUtilities,
   signUp,
   forgotCredentials,
   initialEmail,
@@ -129,6 +132,7 @@ export function LoginPage({
         pending2fa ? t('twoFactor.challengeSubtitle') : branding.subtitle ?? t('login.subtitle')
       }
       footerListItems={footer}
+      headerUtilities={headerUtilities}
       signUpForAccountMessage={pending2fa ? undefined : signUp}
       forgotCredentials={pending2fa ? undefined : forgotCredentials}
     >
