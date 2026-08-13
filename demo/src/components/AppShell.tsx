@@ -146,18 +146,16 @@ export function AppShell({ children }: { children: ReactNode }) {
   );
 
   return (
-    <Page masthead={masthead} sidebar={sidebar} isManagedSidebar isContentFilled>
-      <PageSection isFilled hasOverflowScroll aria-label={t('nav.primary')}>
-        <Stack hasGutter>
-          {me.data?.impersonatedBy ? (
-            <StackItem>
-              <ImpersonationBanner />
-            </StackItem>
-          ) : null}
-          <StackItem isFilled>{children}</StackItem>
-        </Stack>
-      </PageSection>
-    </Page>
+    <>
+      {me.data?.impersonatedBy ? <ImpersonationBanner /> : null}
+      <Page masthead={masthead} sidebar={sidebar} isManagedSidebar isContentFilled>
+        <PageSection isFilled hasOverflowScroll aria-label={t('nav.primary')}>
+          <Stack hasGutter>
+            <StackItem isFilled>{children}</StackItem>
+          </Stack>
+        </PageSection>
+      </Page>
+    </>
   );
 }
 

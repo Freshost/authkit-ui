@@ -140,7 +140,7 @@ Colors come from `@freshost/ui` tokens (Freshost green) — no props needed.
 | `TwoFactorChallenge` | the login challenge step (also reusable standalone) |
 | `UsersPage` + modals | user CRUD + reset-password (needs `user_management`) |
 | `APITokensCard` | create/list/revoke expiring scoped personal tokens (needs `api_tokens`) |
-| `ImpersonationBanner` | persistent impersonated-identity warning with a restore action |
+| `ImpersonationBanner` | slim, sticky impersonated-identity bar with a restore action |
 | `AdminLoginsPage` | attribute-filtered, date-sortable and paginated successful sign-ins across the current guard (admin role-gated) |
 | `AdminLoginsCard` | compact recent sign-ins for a dashboard, with an optional host-owned “View all” action |
 
@@ -171,15 +171,18 @@ Omit `onViewAll` when the dashboard should not link to a full history page.
 ## Impersonation
 
 When the backend enables impersonation, `UsersPage` adds a confirmed **Sign in as
-user** action for eligible same-guard users. Mount the banner once in the
-authenticated application shell so the switched identity and exit action remain
-visible after navigation and reloads:
+user** action for eligible same-guard users. Mount the banner once immediately
+before the authenticated application shell. It then stays at the very top,
+above the masthead, so the switched identity and exit action remain visible
+after navigation and reloads:
 
 ```tsx
-<AppShell>
+<>
   <ImpersonationBanner onStopped={() => navigate('/')} />
-  <Outlet />
-</AppShell>
+  <AppShell>
+    <Outlet />
+  </AppShell>
+</>
 ```
 
 The banner reads `impersonatedBy` from `/auth/me`; it does not rely on transient

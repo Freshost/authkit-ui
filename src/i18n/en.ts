@@ -163,9 +163,10 @@ export const en = {
     confirmTitle: 'Sign in as {{email}}?',
     confirmBody:
       'You will act as this user until you stop impersonating. Sensitive account actions are disabled during the session.',
-    bannerTitle: 'You are signed in as {{email}}',
-    bannerBody: 'Original account: {{email}}',
+    bannerStatus: 'Impersonation active:',
+    bannerTitle: 'Acting as {{email}}',
     stop: 'Stop impersonating',
+    exit: 'Exit',
     stopping: 'Stopping…',
     stopped: 'Impersonation ended.',
     stopError: 'Could not stop impersonating.',

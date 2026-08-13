@@ -1,4 +1,5 @@
-import { Alert, AlertActionLink } from '@freshost/ui';
+import { Banner, Button, Flex, FlexItem } from '@freshost/ui';
+import { UndoAltIcon, UserSecretIcon } from '@freshost/ui/icons';
 import { useTranslation } from 'react-i18next';
 
 import type { UserResponse } from '../api/types';
@@ -13,7 +14,7 @@ export interface ImpersonationBannerProps {
   className?: string;
 }
 
-/** Persistent identity warning and exit action; mount it in the application shell. */
+/** Slim persistent identity bar; mount it immediately before the application shell. */
 export function ImpersonationBanner({ onStopped, className }: ImpersonationBannerProps) {
   const { t } = useTranslation(AUTHKIT_NS);
   const { guard } = useAuthkit();
@@ -27,22 +28,46 @@ export function ImpersonationBanner({ onStopped, className }: ImpersonationBanne
   }
 
   return (
-    <Alert
+    <Banner
       className={className}
-      variant="warning"
-      isInline
-      isLiveRegion
-      title={t('impersonation.bannerTitle', { email: me.data.email })}
-      actionLinks={
-        <AlertActionLink
-          isDisabled={stop.isPending}
-          onClick={() => stop.mutate(undefined, { onSuccess: onStopped })}
-        >
-          {stop.isPending ? t('impersonation.stopping') : t('impersonation.stop')}
-        </AlertActionLink>
-      }
+      status="warning"
+      isSticky
+      screenReaderText={t('impersonation.bannerStatus')}
     >
-      {t('impersonation.bannerBody', { email: actor.email })}
-    </Alert>
+      <Flex
+        alignItems={{ default: 'alignItemsCenter' }}
+        justifyContent={{ default: 'justifyContentSpaceBetween' }}
+        gap={{ default: 'gapSm' }}
+        flexWrap={{ default: 'nowrap' }}
+      >
+        <FlexItem>
+          <UserSecretIcon aria-hidden />
+        </FlexItem>
+        <FlexItem
+          flex={{ default: 'flex_1' }}
+          style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}
+        >
+          <strong>{t('impersonation.bannerTitle', { email: me.data.email })}</strong>
+        </FlexItem>
+        <FlexItem>
+          <Button
+            variant="secondary"
+            size="sm"
+            icon={<UndoAltIcon aria-hidden />}
+            aria-label={t('impersonation.stop')}
+            isLoading={stop.isPending}
+            isDisabled={stop.isPending}
+            spinnerAriaLabel={t('impersonation.stopping')}
+            onClick={() =>
+              stop.mutate(undefined, {
+                onSuccess: (restoredActor) => onStopped?.(restoredActor),
+              })
+            }
+          >
+            {stop.isPending ? t('impersonation.stopping') : t('impersonation.exit')}
+          </Button>
+        </FlexItem>
+      </Flex>
+    </Banner>
   );
 }
