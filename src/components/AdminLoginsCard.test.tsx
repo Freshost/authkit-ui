@@ -38,7 +38,7 @@ describe('AdminLoginsCard', () => {
     expect(card).toHaveTextContent('jane@example.com');
     expect(card).toHaveTextContent('203.0.113.7');
     expect(card).toHaveTextContent('12 total');
-    expect(client.listAdminLogins).toHaveBeenCalledWith({ page: 1, perPage: 3 });
+    expect(client.listAdminLogins).toHaveBeenCalledWith({ page: 1, perPage: 3, sort: 'desc' });
 
     fireEvent.click(screen.getByRole('button', { name: 'View all sign-ins' }));
     expect(onViewAll).toHaveBeenCalledOnce();

@@ -9,6 +9,7 @@ import {
 import { useTranslation } from 'react-i18next';
 
 import type {
+  AdminLoginQuery,
   ChangePasswordRequest,
   LoginRequest,
   LoginResult,
@@ -30,8 +31,7 @@ export const authkitKeys = {
   config: ['authkit', 'config'] as const,
   sessions: ['authkit', 'sessions'] as const,
   logins: ['authkit', 'logins'] as const,
-  adminLogins: (page: number, perPage: number) =>
-    ['authkit', 'admin-logins', { page, perPage }] as const,
+  adminLogins: (query: AdminLoginQuery) => ['authkit', 'admin-logins', query] as const,
   apiTokens: ['authkit', 'api-tokens'] as const,
 };
 

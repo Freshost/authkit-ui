@@ -97,6 +97,14 @@ export interface AdminLoginPage {
 export interface AdminLoginQuery {
   page?: number;
   perPage?: number;
+  /** Case-insensitive substring matched against the user's current name or email. */
+  user?: string;
+  /** Literal case-insensitive substring matched against the recorded IP address. */
+  ip?: string;
+  /** Successful sign-in method. */
+  method?: 'password' | 'remember';
+  /** Sort direction for the sign-in timestamp. Defaults to newest first. */
+  sort?: 'asc' | 'desc';
 }
 
 /**

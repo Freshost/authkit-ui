@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-import { Content, Table, Tbody, Td, Th, Thead, Tr } from '@freshost/ui';
+import { Content, SortByDirection, Table, Tbody, Td, Th, Thead, Tr } from '@freshost/ui';
 
 import type { AdminLoginEvent } from '../api/types';
 import { AUTHKIT_NS } from '../i18n';
@@ -14,10 +14,12 @@ function formatDate(iso: string): string {
 interface AdminLoginsTableProps {
   items: AdminLoginEvent[];
   ariaLabel: string;
+  sort?: 'asc' | 'desc';
+  onSort?: (sort: 'asc' | 'desc') => void;
 }
 
 /** Shared presentation used by the full page and dashboard card. */
-export function AdminLoginsTable({ items, ariaLabel }: AdminLoginsTableProps) {
+export function AdminLoginsTable({ items, ariaLabel, sort, onSort }: AdminLoginsTableProps) {
   const { t } = useTranslation(AUTHKIT_NS);
 
   return (
@@ -25,7 +27,23 @@ export function AdminLoginsTable({ items, ariaLabel }: AdminLoginsTableProps) {
       <Thead>
         <Tr>
           <Th>{t('adminLogins.userLabel')}</Th>
-          <Th>{t('adminLogins.whenLabel')}</Th>
+          <Th
+            sort={
+              sort && onSort
+                ? {
+                    sortBy: { index: 1, direction: sort },
+                    columnIndex: 1,
+                    onSort: (_event, _columnIndex, direction) =>
+                      onSort(
+                        direction === SortByDirection.asc ? 'asc' : 'desc',
+                      ),
+                    'aria-label': t('adminLogins.sortByDate'),
+                  }
+                : undefined
+            }
+          >
+            {t('adminLogins.whenLabel')}
+          </Th>
           <Th>{t('adminLogins.methodLabel')}</Th>
           <Th>{t('adminLogins.ipLabel')}</Th>
         </Tr>

@@ -45,7 +45,7 @@ export function AdminLoginsCard({
 }: AdminLoginsCardProps) {
   const { t } = useTranslation(AUTHKIT_NS);
   const pageSize = normalizeLimit(limit);
-  const logins = useAdminLogins(1, pageSize);
+  const logins = useAdminLogins({ page: 1, perPage: pageSize, sort: 'desc' });
 
   return (
     <Card

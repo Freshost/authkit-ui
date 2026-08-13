@@ -141,7 +141,7 @@ Colors come from `@freshost/ui` tokens (Freshost green) — no props needed.
 | `UsersPage` + modals | user CRUD + reset-password (needs `user_management`) |
 | `APITokensCard` | create/list/revoke expiring scoped personal tokens (needs `api_tokens`) |
 | `ImpersonationBanner` | persistent impersonated-identity warning with a restore action |
-| `AdminLoginsPage` | paginated successful sign-ins across the current guard (admin role-gated) |
+| `AdminLoginsPage` | attribute-filtered, date-sortable and paginated successful sign-ins across the current guard (admin role-gated) |
 | `AdminLoginsCard` | compact recent sign-ins for a dashboard, with an optional host-owned “View all” action |
 
 **Hooks** (compose your own UI)
