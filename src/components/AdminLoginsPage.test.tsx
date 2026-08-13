@@ -44,10 +44,20 @@ describe('AdminLoginsPage', () => {
       }),
     );
 
-    fireEvent.change(screen.getByRole('textbox', { name: 'Filter user sign-ins' }), {
-      target: { value: "user:'Jane Doe' ip:'203.0.113' method:remember" },
+    fireEvent.change(screen.getByRole('textbox', { name: 'Filter by user' }), {
+      target: { value: 'Jane Doe' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Apply filters' }));
+
+    fireEvent.click(screen.getByRole('button', { name: 'User' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'IP address' }));
+    fireEvent.change(screen.getByRole('textbox', { name: 'Filter by IP address' }), {
+      target: { value: '203.0.113' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'IP address' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Method' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Filter by method' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Remember me' }));
 
     await waitFor(() =>
       expect(client.listAdminLogins).toHaveBeenCalledWith({
@@ -59,5 +69,9 @@ describe('AdminLoginsPage', () => {
         method: 'remember',
       }),
     );
+
+    expect(screen.getByText('Jane Doe', { selector: '.pf-v6-c-label__text' })).toBeInTheDocument();
+    expect(screen.getByText('203.0.113', { selector: '.pf-v6-c-label__text' })).toBeInTheDocument();
+    expect(screen.getByText('Remember me', { selector: '.pf-v6-c-label__text' })).toBeInTheDocument();
   });
 });

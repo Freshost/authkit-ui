@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -7,7 +7,13 @@ import {
   Content,
   EmptyState,
   EmptyStateBody,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuList,
+  MenuToggle,
   Pagination,
+  Popper,
   SearchInput,
   Spinner,
   Stack,
@@ -15,13 +21,18 @@ import {
   Toolbar,
   ToolbarContent,
   ToolbarFilter,
+  ToolbarGroup,
   ToolbarItem,
+  ToolbarToggleGroup,
 } from '@freshost/ui';
+import { RhUiFilterFillIcon } from '@freshost/ui/icons';
 
 import type { AdminLoginQuery } from '../api/types';
 import { useAdminLogins } from '../hooks/useAdminLogins';
 import { AUTHKIT_NS } from '../i18n';
 import { AdminLoginsTable } from './AdminLoginsTable';
+
+type FilterAttribute = 'user' | 'ip' | 'method';
 
 interface AdminLoginFilters {
   user: string;
@@ -31,20 +42,6 @@ interface AdminLoginFilters {
 
 const emptyFilters: AdminLoginFilters = { user: '', ip: '', method: '' };
 
-function quoteSearchValue(value: string): string {
-  return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
-}
-
-function searchValueFor(filters: AdminLoginFilters): string {
-  return [
-    filters.user && `user:${quoteSearchValue(filters.user)}`,
-    filters.ip && `ip:${quoteSearchValue(filters.ip)}`,
-    filters.method && `method:${filters.method}`,
-  ]
-    .filter(Boolean)
-    .join(' ');
-}
-
 /** Role-gated, server-filtered and paginated overview of successful sign-ins. */
 export function AdminLoginsPage() {
   const { t } = useTranslation(AUTHKIT_NS);
@@ -52,8 +49,61 @@ export function AdminLoginsPage() {
   const [perPage, setPerPage] = useState(20);
   const [sort, setSort] = useState<'asc' | 'desc'>('desc');
   const [filters, setFilters] = useState<AdminLoginFilters>(emptyFilters);
-  const [searchValue, setSearchValue] = useState('');
-  const [hasFilterError, setHasFilterError] = useState(false);
+  const [activeAttribute, setActiveAttribute] = useState<FilterAttribute>('user');
+
+  const [isAttributeMenuOpen, setIsAttributeMenuOpen] = useState(false);
+  const attributeToggleRef = useRef<HTMLButtonElement>(null);
+  const attributeMenuRef = useRef<HTMLDivElement>(null);
+  const attributeContainerRef = useRef<HTMLDivElement>(null);
+
+  const [isMethodMenuOpen, setIsMethodMenuOpen] = useState(false);
+  const methodToggleRef = useRef<HTMLButtonElement>(null);
+  const methodMenuRef = useRef<HTMLDivElement>(null);
+  const methodContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' && event.key !== 'Tab') return;
+      if (
+        isAttributeMenuOpen &&
+        (attributeMenuRef.current?.contains(event.target as Node) ||
+          attributeToggleRef.current?.contains(event.target as Node))
+      ) {
+        setIsAttributeMenuOpen(false);
+        attributeToggleRef.current?.focus();
+      }
+      if (
+        isMethodMenuOpen &&
+        (methodMenuRef.current?.contains(event.target as Node) ||
+          methodToggleRef.current?.contains(event.target as Node))
+      ) {
+        setIsMethodMenuOpen(false);
+        methodToggleRef.current?.focus();
+      }
+    };
+    const handleClick = (event: MouseEvent) => {
+      if (
+        isAttributeMenuOpen &&
+        !attributeMenuRef.current?.contains(event.target as Node) &&
+        !attributeToggleRef.current?.contains(event.target as Node)
+      ) {
+        setIsAttributeMenuOpen(false);
+      }
+      if (
+        isMethodMenuOpen &&
+        !methodMenuRef.current?.contains(event.target as Node) &&
+        !methodToggleRef.current?.contains(event.target as Node)
+      ) {
+        setIsMethodMenuOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('click', handleClick);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('click', handleClick);
+    };
+  }, [isAttributeMenuOpen, isMethodMenuOpen]);
 
   const query: AdminLoginQuery = {
     page,
@@ -66,34 +116,95 @@ export function AdminLoginsPage() {
   const logins = useAdminLogins(query);
   const hasFilters = Boolean(filters.user || filters.ip || filters.method);
 
-  const replaceFilters = (next: AdminLoginFilters) => {
-    setFilters(next);
-    setSearchValue(searchValueFor(next));
+  const replaceFilter = <K extends keyof AdminLoginFilters>(
+    name: K,
+    value: AdminLoginFilters[K],
+  ) => {
+    setFilters((current) => ({ ...current, [name]: value }));
     setPage(1);
   };
 
-  const clearFilter = (name: keyof AdminLoginFilters) => {
-    replaceFilters({ ...filters, [name]: '' });
-  };
-
   const clearAllFilters = () => {
-    setHasFilterError(false);
-    replaceFilters(emptyFilters);
+    setFilters(emptyFilters);
+    setPage(1);
   };
 
-  const applySearch = (values: Record<string, string>) => {
-    const method = values.method?.trim().toLowerCase();
-    if (method && method !== 'password' && method !== 'remember') {
-      setHasFilterError(true);
-      return;
-    }
-    setHasFilterError(false);
-    replaceFilters({
-      user: (values.user ?? values.haswords ?? '').trim(),
-      ip: (values.ip ?? '').trim(),
-      method: method === 'password' || method === 'remember' ? method : '',
-    });
+  const attributeLabels: Record<FilterAttribute, string> = {
+    user: t('adminLogins.userLabel'),
+    ip: t('adminLogins.ipLabel'),
+    method: t('adminLogins.methodLabel'),
   };
+
+  const attributeToggle = (
+    <MenuToggle
+      ref={attributeToggleRef}
+      icon={<RhUiFilterFillIcon />}
+      isExpanded={isAttributeMenuOpen}
+      onClick={(event) => {
+        event.stopPropagation();
+        setIsAttributeMenuOpen((open) => !open);
+      }}
+    >
+      {attributeLabels[activeAttribute]}
+    </MenuToggle>
+  );
+  const attributeMenu = (
+    <Menu
+      ref={attributeMenuRef}
+      aria-label={t('adminLogins.attributeMenuLabel')}
+      onSelect={(_event, itemId) => {
+        setActiveAttribute(itemId as FilterAttribute);
+        setIsAttributeMenuOpen(false);
+        attributeToggleRef.current?.focus();
+      }}
+    >
+      <MenuContent>
+        <MenuList>
+          <MenuItem itemId="user">{attributeLabels.user}</MenuItem>
+          <MenuItem itemId="ip">{attributeLabels.ip}</MenuItem>
+          <MenuItem itemId="method">{attributeLabels.method}</MenuItem>
+        </MenuList>
+      </MenuContent>
+    </Menu>
+  );
+
+  const methodLabel = filters.method
+    ? filters.method === 'remember'
+      ? t('loginHistory.methodRemember')
+      : t('loginHistory.methodPassword')
+    : '';
+  const methodToggle = (
+    <MenuToggle
+      ref={methodToggleRef}
+      isExpanded={isMethodMenuOpen}
+      onClick={(event) => {
+        event.stopPropagation();
+        setIsMethodMenuOpen((open) => !open);
+      }}
+    >
+      {methodLabel || t('adminLogins.methodPlaceholder')}
+    </MenuToggle>
+  );
+  const methodMenu = (
+    <Menu
+      ref={methodMenuRef}
+      aria-label={t('adminLogins.methodMenuLabel')}
+      selected={filters.method}
+      onSelect={(_event, itemId) => {
+        const method = itemId === 'remember' ? 'remember' : 'password';
+        replaceFilter('method', method);
+        setIsMethodMenuOpen(false);
+        methodToggleRef.current?.focus();
+      }}
+    >
+      <MenuContent>
+        <MenuList>
+          <MenuItem itemId="password">{t('loginHistory.methodPassword')}</MenuItem>
+          <MenuItem itemId="remember">{t('loginHistory.methodRemember')}</MenuItem>
+        </MenuList>
+      </MenuContent>
+    </Menu>
+  );
 
   return (
     <Stack hasGutter>
@@ -109,60 +220,70 @@ export function AdminLoginsPage() {
           collapseListedFiltersBreakpoint="xl"
         >
           <ToolbarContent>
-            <ToolbarFilter
-              categoryName={t('adminLogins.userLabel')}
-              labels={filters.user ? [filters.user] : []}
-              deleteLabel={() => clearFilter('user')}
-              deleteLabelGroup={() => clearFilter('user')}
-            >
-              <SearchInput
-                aria-label={t('adminLogins.searchLabel')}
-                placeholder={t('adminLogins.searchPlaceholder')}
-                value={searchValue}
-                attributes={[
-                  { attr: 'user', display: t('adminLogins.userLabel') },
-                  { attr: 'ip', display: t('adminLogins.ipLabel') },
-                  { attr: 'method', display: t('adminLogins.methodLabel') },
-                ]}
-                advancedSearchDelimiter=":"
-                hasWordsAttrLabel={t('adminLogins.userLabel')}
-                submitSearchButtonLabel={t('adminLogins.applyFilters')}
-                resetButtonLabel={t('adminLogins.clearFilters')}
-                openMenuButtonAriaLabel={t('adminLogins.openFilters')}
-                onChange={(_event, value) => {
-                  setSearchValue(value);
-                  setHasFilterError(false);
-                }}
-                onSearch={(_event, _value, values) => applySearch(values)}
-                onClear={clearAllFilters}
-              />
-            </ToolbarFilter>
-            <ToolbarFilter
-              categoryName={t('adminLogins.ipLabel')}
-              labels={filters.ip ? [filters.ip] : []}
-              deleteLabel={() => clearFilter('ip')}
-              deleteLabelGroup={() => clearFilter('ip')}
-              showToolbarItem={false}
-            >
-              <span />
-            </ToolbarFilter>
-            <ToolbarFilter
-              categoryName={t('adminLogins.methodLabel')}
-              labels={
-                filters.method
-                  ? [
-                      filters.method === 'remember'
-                        ? t('loginHistory.methodRemember')
-                        : t('loginHistory.methodPassword'),
-                    ]
-                  : []
-              }
-              deleteLabel={() => clearFilter('method')}
-              deleteLabelGroup={() => clearFilter('method')}
-              showToolbarItem={false}
-            >
-              <span />
-            </ToolbarFilter>
+            <ToolbarToggleGroup toggleIcon={<RhUiFilterFillIcon />} breakpoint="xl">
+              <ToolbarGroup variant="filter-group">
+                <ToolbarItem>
+                  <div ref={attributeContainerRef}>
+                    <Popper
+                      trigger={attributeToggle}
+                      triggerRef={attributeToggleRef}
+                      popper={attributeMenu}
+                      popperRef={attributeMenuRef}
+                      appendTo={attributeContainerRef.current || undefined}
+                      isVisible={isAttributeMenuOpen}
+                    />
+                  </div>
+                </ToolbarItem>
+                <ToolbarFilter
+                  categoryName={attributeLabels.user}
+                  labels={filters.user ? [filters.user] : []}
+                  deleteLabel={() => replaceFilter('user', '')}
+                  deleteLabelGroup={() => replaceFilter('user', '')}
+                  showToolbarItem={activeAttribute === 'user'}
+                >
+                  <SearchInput
+                    aria-label={t('adminLogins.userSearchLabel')}
+                    placeholder={t('adminLogins.userSearchPlaceholder')}
+                    value={filters.user}
+                    onChange={(_event, value) => replaceFilter('user', value)}
+                    onClear={() => replaceFilter('user', '')}
+                  />
+                </ToolbarFilter>
+                <ToolbarFilter
+                  categoryName={attributeLabels.ip}
+                  labels={filters.ip ? [filters.ip] : []}
+                  deleteLabel={() => replaceFilter('ip', '')}
+                  deleteLabelGroup={() => replaceFilter('ip', '')}
+                  showToolbarItem={activeAttribute === 'ip'}
+                >
+                  <SearchInput
+                    aria-label={t('adminLogins.ipSearchLabel')}
+                    placeholder={t('adminLogins.ipSearchPlaceholder')}
+                    value={filters.ip}
+                    onChange={(_event, value) => replaceFilter('ip', value)}
+                    onClear={() => replaceFilter('ip', '')}
+                  />
+                </ToolbarFilter>
+                <ToolbarFilter
+                  categoryName={attributeLabels.method}
+                  labels={methodLabel ? [methodLabel] : []}
+                  deleteLabel={() => replaceFilter('method', '')}
+                  deleteLabelGroup={() => replaceFilter('method', '')}
+                  showToolbarItem={activeAttribute === 'method'}
+                >
+                  <div ref={methodContainerRef}>
+                    <Popper
+                      trigger={methodToggle}
+                      triggerRef={methodToggleRef}
+                      popper={methodMenu}
+                      popperRef={methodMenuRef}
+                      appendTo={methodContainerRef.current || undefined}
+                      isVisible={isMethodMenuOpen}
+                    />
+                  </div>
+                </ToolbarFilter>
+              </ToolbarGroup>
+            </ToolbarToggleGroup>
             {logins.data ? (
               <ToolbarItem align={{ default: 'alignEnd' }}>
                 {t('adminLogins.total', { count: logins.data.total })}
@@ -171,11 +292,6 @@ export function AdminLoginsPage() {
           </ToolbarContent>
         </Toolbar>
       </StackItem>
-      {hasFilterError ? (
-        <StackItem>
-          <Alert variant="warning" isInline title={t('adminLogins.invalidMethodFilter')} />
-        </StackItem>
-      ) : null}
       {logins.isLoading ? (
         <StackItem isFilled>
           <Bullseye>
