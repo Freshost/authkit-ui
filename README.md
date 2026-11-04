@@ -218,6 +218,16 @@ any key by adding your own bundle:
 i18n.addResourceBundle('en', 'authkit', { login: { title: 'Sign in' } }, true, true);
 ```
 
+## Releasing
+
+CI builds, type-checks and tests the package, then stores the npm tarball as an
+artifact. Publishing a GitHub release triggers `publish.yml`, which publishes
+that exact artifact through npm trusted publishing (OIDC). A manual workflow run
+accepts a release tag for retries. No local login, build or publish is needed.
+
+Configure the npm package's trusted publisher with organization `Freshost`,
+repository `authkit-ui` and workflow filename `publish.yml`.
+
 ## Local development (backend / package not yet published)
 
 Point your app at a local checkout with a workspace override or a packed tarball:

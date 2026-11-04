@@ -1,0 +1,52 @@
+name: Publish to npm
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag with a successful CI package
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+  id-token: write
+
+concurrency:
+  group: npm-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.event.release.tag_name }}
+
+      - name: Find the successful package CI run
+        id: ci
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          COMMIT_SHA=$(git rev-parse HEAD)
+          RUN_ID=$(gh run list --workflow ci.yml --commit "$COMMIT_SHA" --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+          test -n "$RUN_ID" && test "$RUN_ID" != null
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: npm-package
+          run-id: ${{ steps.ci.outputs.run_id }}
+          github-token: ${{ github.token }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Publish the tested package using npm trusted publishing
+        run: npm publish freshost-authkit-ui-*.tgz --ignore-scripts --access public
