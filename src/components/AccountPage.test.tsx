@@ -11,28 +11,51 @@ const user: UserResponse = {
   twoFactorEnabled: false, disabled: false, createdAt: '2026-01-01T00:00:00Z',
 };
 
-function renderAccount(impersonating: boolean, allowActions?: boolean) {
+function renderAccount(impersonating: boolean, allowActions?: boolean, allowCreation = false) {
   const meta: MetaResponse = {
     roles: ['admin', 'user'], minPasswordLength: 8,
     features: {
       userManagement: true, twoFactor: true, auditLog: false, sessions: false,
       impersonation: true, apiTokens: true, impersonationSensitiveActions: allowActions,
     },
-    apiTokens: { allowedScopes: ['dns:acme'], defaultLifetimeDays: 30, maxLifetimeDays: 365, maxPerUser: 10 },
+    apiTokens: { allowedScopes: ['dns:acme'], defaultLifetimeDays: 30, maxLifetimeDays: 365, maxPerUser: 10, allowImpersonatedCreation: allowCreation },
   };
   const client = {
     getMeta: vi.fn().mockResolvedValue(meta),
     getMe: vi.fn().mockResolvedValue({
       ...user,
+      twoFactorEnabled: allowCreation,
       ...(impersonating ? { impersonatedBy: { guard: 'admin', id: 'actor-id', email: 'admin@example.com' } } : {}),
     }),
     listAPITokens: vi.fn().mockResolvedValue([]),
+    createAPIToken: vi.fn().mockResolvedValue({ id: 'token-id', name: 'CLI', scopes: [], expiresAt: '2027-01-01T00:00:00Z', createdAt: '2026-11-04T00:00:00Z', lastUsedAt: null, token: 'test-token' }),
   } as unknown as AuthkitClient;
   renderWithAuthkit(<AccountPage />, { client });
   return client;
 }
 
 describe('AccountPage impersonation capabilities', () => {
+  it('creates a delegated PAT without requesting or sending target credentials', async () => {
+    const client = renderAccount(true, true, true);
+    fireEvent.click(await screen.findByRole('button', { name: 'Create token' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Create API token' });
+    expect(dialog.querySelector('input[type="password"]')).toBeNull();
+    expect(dialog.querySelector('#authkit-token-2fa')).toBeNull();
+    fireEvent.change(dialog.querySelector('#authkit-token-name')!, { target: { value: 'CLI' } });
+    fireEvent.submit(dialog.querySelector('form')!);
+    await waitFor(() => expect(client.createAPIToken).toHaveBeenCalled());
+    const payload = vi.mocked(client.createAPIToken).mock.calls[0]![0];
+    expect(payload.name).toBe('CLI');
+    expect(payload).not.toHaveProperty('password');
+    expect(payload).not.toHaveProperty('twoFactorCode');
+  });
+
+  it('retains password confirmation for direct login even when delegation is enabled', async () => {
+    renderAccount(false, true, true);
+    fireEvent.click(await screen.findByRole('button', { name: 'Create token' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Create API token' });
+    expect(dialog.querySelector('input[type="password"]')).toBeRequired();
+  });
   it('keeps PAT and password actions available for a directly signed-in regular user', async () => {
     renderAccount(false);
     expect(await screen.findByRole('button', { name: 'Create token' })).toBeVisible();

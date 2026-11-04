@@ -50,6 +50,7 @@ export interface MetaFeatures {
 }
 
 export interface APITokenMeta {
+	allowImpersonatedCreation?: boolean;
   allowedScopes: string[];
   defaultLifetimeDays: number;
   maxLifetimeDays: number;
@@ -135,7 +136,7 @@ export interface CreateAPITokenRequest {
   name: string;
   expiresAt: string;
   scopes: string[];
-  password: string;
+  password?: string;
   twoFactorCode?: string;
 }
 
