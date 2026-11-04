@@ -35,3 +35,11 @@ jobs:
       # Playwright E2E drive a real backend and run locally, not in this gate.
       - name: test
         run: pnpm test:unit
+
+      - name: package
+        run: npm pack --ignore-scripts
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: npm-package
+          path: freshost-authkit-ui-*.tgz

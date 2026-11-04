@@ -186,8 +186,10 @@ after navigation and reloads:
 ```
 
 The banner reads `impersonatedBy` from `/auth/me`; it does not rely on transient
-browser state. While impersonating, `AccountPage` hides password and API-token
-controls that the backend rejects.
+browser state. `AccountPage` follows the backend's
+`features.impersonationSensitiveActions` setting: when enabled, password and
+API-token controls remain available during impersonation, just as for direct
+login. Older backends and an omitted or false setting retain the existing lockout.
 
 Cross-guard impersonation is host-composed because only the application knows
 the target portal URL. Call the actor guard's hook with a target guard, then

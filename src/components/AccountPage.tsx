@@ -25,6 +25,7 @@ export function AccountPage({ onSuccess }: AccountPageProps) {
   const { t } = useTranslation(AUTHKIT_NS);
   const features = useAuthkitConfig().data?.features;
   const impersonating = Boolean(useMe().data?.impersonatedBy);
+  const allowAccountActions = !impersonating || features?.impersonationSensitiveActions === true;
 
   return (
     <Stack hasGutter>
@@ -36,7 +37,7 @@ export function AccountPage({ onSuccess }: AccountPageProps) {
           </CardBody>
         </Card>
       </StackItem>
-      {!impersonating ? (
+      {allowAccountActions ? (
         <StackItem>
           <Card>
             <CardTitle>{t('account.title')}</CardTitle>
@@ -51,7 +52,7 @@ export function AccountPage({ onSuccess }: AccountPageProps) {
           <SessionsCard />
         </StackItem>
       ) : null}
-      {features?.apiTokens && !impersonating ? (
+      {features?.apiTokens && allowAccountActions ? (
         <StackItem>
           <APITokensCard />
         </StackItem>
