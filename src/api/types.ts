@@ -44,6 +44,8 @@ export interface MetaFeatures {
   auditLog: boolean;
   sessions: boolean;
   impersonation?: boolean;
+  /** Allow the target's normal account actions during impersonation. */
+  impersonationSensitiveActions?: boolean;
   apiTokens: boolean;
 }
 
