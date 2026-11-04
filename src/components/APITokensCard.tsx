@@ -62,6 +62,7 @@ export function APITokensCard() {
   const { notify } = useAuthkit();
   const meta = useAuthkitConfig().data?.apiTokens;
   const me = useMe().data;
+  const delegatedCreation = Boolean(me?.impersonatedBy && meta?.allowImpersonatedCreation);
   const tokens = useAPITokens();
   const create = useCreateAPIToken();
   const revoke = useRevokeAPIToken();
@@ -113,8 +114,7 @@ export function APITokensCard() {
         name,
         expiresAt: expiresAt.toISOString(),
         scopes,
-        password,
-        twoFactorCode: twoFactorCode || undefined,
+        ...(delegatedCreation ? {} : { password, twoFactorCode: twoFactorCode || undefined }),
       },
       {
         onSuccess: (result) => {
@@ -227,10 +227,10 @@ export function APITokensCard() {
                   </Stack>
                 </FormGroup>
               ) : null}
-              <FormGroup label={t('account.currentPasswordLabel')} isRequired fieldId="authkit-token-password">
+              {!delegatedCreation ? <FormGroup label={t('account.currentPasswordLabel')} isRequired fieldId="authkit-token-password">
                 <TextInput id="authkit-token-password" type="password" value={password} onChange={(_e, value) => setPassword(value)} autoComplete="current-password" isRequired />
-              </FormGroup>
-              {me?.twoFactorEnabled ? <FormGroup label={t('twoFactor.codeLabel')} isRequired fieldId="authkit-token-2fa"><TextInput id="authkit-token-2fa" value={twoFactorCode} onChange={(_e, value) => setTwoFactorCode(value)} inputMode="numeric" autoComplete="one-time-code" isRequired /></FormGroup> : null}
+              </FormGroup> : null}
+              {!delegatedCreation && me?.twoFactorEnabled ? <FormGroup label={t('twoFactor.codeLabel')} isRequired fieldId="authkit-token-2fa"><TextInput id="authkit-token-2fa" value={twoFactorCode} onChange={(_e, value) => setTwoFactorCode(value)} inputMode="numeric" autoComplete="one-time-code" isRequired /></FormGroup> : null}
               <ActionGroup><Button type="submit" isLoading={create.isPending} isDisabled={create.isPending}>{t('apiTokens.create')}</Button><Button variant="link" onClick={closeCreate}>{t('common.cancel')}</Button></ActionGroup>
             </Form>
           </ModalBody>
