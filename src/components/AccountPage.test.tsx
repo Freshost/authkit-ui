@@ -50,10 +50,11 @@ describe('AccountPage impersonation capabilities', () => {
 
   it('shows the normal PAT creation form and password action when the backend permits them', async () => {
     const client = renderAccount(true, true);
-    fireEvent.click(await screen.findByRole('button', { name: 'Create token' }));
+    const create = await screen.findByRole('button', { name: 'Create token' });
+    expect(screen.getByRole('button', { name: 'Change password' })).toBeVisible();
+    fireEvent.click(create);
     expect(await screen.findByRole('dialog', { name: 'Create API token' })).toBeVisible();
     expect(screen.getByRole('checkbox', { name: 'dns:acme' })).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Change password' })).toBeVisible();
     expect(client.listAPITokens).toHaveBeenCalled();
   });
 });
