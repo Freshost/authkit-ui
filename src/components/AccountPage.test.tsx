@@ -44,7 +44,7 @@ describe('AccountPage impersonation capabilities', () => {
     fireEvent.change(dialog.querySelector('#authkit-token-name')!, { target: { value: 'CLI' } });
     fireEvent.submit(dialog.querySelector('form')!);
     await waitFor(() => expect(client.createAPIToken).toHaveBeenCalled());
-    const payload = vi.mocked(client.createAPIToken).mock.calls[0][0];
+    const payload = vi.mocked(client.createAPIToken).mock.calls[0]![0];
     expect(payload.name).toBe('CLI');
     expect(payload).not.toHaveProperty('password');
     expect(payload).not.toHaveProperty('twoFactorCode');
